@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Economics on okuzawatsの日記</title>
+    <link>http://localhost:1313/categories/economics/</link>
+    <description>Recent content in Economics on okuzawatsの日記</description>
+    <generator>Hugo</generator>
+    <language>ja</language>
+    <copyright>© 2019 okuzawats</copyright>
+    <lastBuildDate>Wed, 29 May 2024 06:13:00 +0900</lastBuildDate>
+    <atom:link href="http://localhost:1313/categories/economics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>定率成長配当割引モデル</title>
+      <link>http://localhost:1313/blog/diviend-growth-model/</link>
+      <pubDate>Wed, 29 May 2024 06:13:00 +0900</pubDate>
+      <guid>http://localhost:1313/blog/diviend-growth-model/</guid>
+      <description>&lt;p&gt;&lt;strong&gt;定率成長配当割引モデル&lt;/strong&gt;は、将来の配当を元に、企業の現在価値を評価するためのモデルです。ここで、企業は成長し続けるという期待があるため、それに伴い配当も毎年成長率 &lt;code&gt;g&lt;/code&gt; で増えていくという前提を置きます。また、1年後の配当を現在価値に割り引くため、割引率を &lt;code&gt;ρ&lt;/code&gt;　とします。&lt;/p&gt;&#xA;&lt;p&gt;この時、1年後の配当の現在価値（Present Value）は以下のように表すことができます。 &lt;code&gt;D&lt;/code&gt; は配当（Diviend）です。割引率を用いて配当を現在価値に割り引いています。&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;\begin{equation}&#xA;\begin{split}&#xA;PV_1 = { \frac {D_1} {1 + \rho} }&#xA;\end{split}&#xA;\end{equation}&#xA;$$&lt;/p&gt;&#xA;&lt;p&gt;2年後の配当の現在価値は以下のように表すことができます。配当は成長率 &lt;code&gt;g&lt;/code&gt; で成長します。&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;\begin{equation}&#xA;\begin{split}&#xA;PV_2 = { \frac {{D_1} \cdot {(1 + g)}} {(1 + \rho)^2} }&#xA;\end{split}&#xA;\end{equation}&#xA;$$&lt;/p&gt;&#xA;&lt;p&gt;(1)式と(2)式から、以下のように書くことができます。&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;\begin{equation}&#xA;\begin{split}&#xA;PV_2 = PV_1 \cdot { \frac {1 + g} {1 + \rho} }&#xA;\end{split}&#xA;\end{equation}&#xA;$$&lt;/p&gt;&#xA;&lt;p&gt;同様に、3年目の配当の現在価値も以下のように書くことができます。&lt;/p&gt;&#xA;&lt;p&gt;$$&#xA;\begin{equation}&#xA;\begin{split}&#xA;PV_3 = PV_2 \cdot { \frac {1 + g} {1 + \rho} }&#xA;\end{split}&#xA;\end{equation}&#xA;$$&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

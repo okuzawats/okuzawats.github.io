@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>goenvでGoのバージョンを管理する | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="goenvでGoのバージョンを管理する" />
+  <meta name="description" content="goenvを用いてGo言語のバージョンを管理する方法です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>goenvでGoのバージョンを管理する</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-09-23' pubdate>
+        2024-09-23
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>趣味でGoを書く機会が増えてきたので、そろそろ <code>anyenv</code> 的な方法でGoのバージョンを管理するか&hellip;と重い腰を上げました。Go言語のバージョンマネージャで広く使われているものは、 <code>pyenv</code> や <code>rbenv</code> などの流れをくむ <code>goenv</code> と <code>nvm</code> などの流れをくむ <code>gvm</code> があります。なお、自分の使っているOSはmacOS Sonomaです。</p>
+<ul>
+<li><a href="https://github.com/go-nv/goenv?tab=readme-ov-file">go-nv/goenv: :blue_car: Like pyenv and rbenv, but for Go.</a></li>
+<li><a href="https://github.com/moovweb/gvm">moovweb/gvm: Go Version Manager</a></li>
+</ul>
+<p>どちらもGitHubにリポジトリが存在しているので最近のメンテナンスの状況を見つつ、今回は <code>goenv</code> を用います。</p>
+<h2 id="goのアンインストール">Goのアンインストール</h2>
+<p>まずはグローバルにインストールされているGoはもう不要になるので、アンインストールしておきます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>% go version
+</span></span><span style="display:flex;"><span>go version go1.23.1 darwin/arm64
+</span></span><span style="display:flex;"><span>% brew uninstall go
+</span></span><span style="display:flex;"><span>Uninstalling /opt/homebrew/Cellar/go/1.23.1... (13,231 files, 268.2MB)
+</span></span><span style="display:flex;"><span>% go version
+</span></span><span style="display:flex;"><span>zsh: command not found: go
+</span></span></code></pre></div><h2 id="goenvのインストール">goenvのインストール</h2>
+<p>Homebrewで <code>goenv</code> をインストールします。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>% brew install goenv
+</span></span></code></pre></div><p><a href="https://github.com/go-nv/goenv/blob/master/INSTALL.md">INSTALL.md</a>を参考にしつつ、自分はzshを使っているので <code>~/.zshrc</code> に以下を書き込み、最後に <code>source ~/.zshrc</code> を実行します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#04a5e5">export</span> <span style="color:#dc8a78">GOENV_ROOT</span><span style="color:#04a5e5;font-weight:bold">=</span><span style="color:#dc8a78">$HOME</span>/.goenv
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5">export</span> <span style="color:#dc8a78">PATH</span><span style="color:#04a5e5;font-weight:bold">=</span><span style="color:#dc8a78">$GOENV_ROOT</span>/bin:<span style="color:#dc8a78">$PATH</span>
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5">eval</span> <span style="color:#40a02b">&#34;</span><span style="color:#8839ef">$(</span>goenv init -<span style="color:#8839ef">)</span><span style="color:#40a02b">&#34;</span>
+</span></span></code></pre></div><h2 id="goの特定バージョンをインストールする">Goの特定バージョンをインストールする</h2>
+<p>元々使っていた <code>Go 1.23.1</code> を使いたいので、このバージョンをインストールします。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>% goenv install 1.23.1
+</span></span></code></pre></div><p><code>goenv local</code> で該当バージョンを指定します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-console" data-lang="console"><span style="display:flex;"><span>% goenv <span style="color:#04a5e5">local</span> 1.23.1
+</span></span><span style="display:flex;"><span>% go version
+</span></span><span style="display:flex;"><span>go version go1.23.1 darwin/arm64
+</span></span></code></pre></div><p>OK。</p>
+<h2 id="references">References</h2>
+<ol>
+<li><a href="https://github.com/go-nv/goenv?tab=readme-ov-file">go-nv/goenv: :blue_car: Like pyenv and rbenv, but for Go.</a>(<a href="https://developer.apple.com/documentation/swiftui/view">https://developer.apple.com/documentation/swiftui/view</a>)（最終アクセス日：2024/09/23）</li>
+<li><a href="https://github.com/moovweb/gvm">moovweb/gvm: Go Version Manager</a>（最終アクセス日：2024/09/23）</li>
+<li><a href="https://zenn.dev/erueru_tech/articles/13e8512d9312de">goenv: ローカルのGoバージョンを柔軟に切り替えるツールの導入</a>（最終アクセス日：2024/09/23）</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/writing-an-interpreter-in-go/">「Go言語でつくるインタプリタ」を読みました📚</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

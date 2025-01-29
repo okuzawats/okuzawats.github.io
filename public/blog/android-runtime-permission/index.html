@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] ライブラリを使ってRuntime Permissionをリクエストする | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] ライブラリを使ってRuntime Permissionをリクエストする" />
+  <meta name="description" content="PermissionsDispatcher、RxPermissionsを使って、AndroidのRuntime Permissionをリクエストする方法についてまとめます。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] ライブラリを使ってRuntime Permissionをリクエストする</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2019-09-28' pubdate>
+        2019-09-28
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>ライブラリを使ってAndroidのRuntime Permissionをリクエストする方法をまとめます。Runtime Permissionをリクエストするために使える有名なライブラリには、PermissionsDispatcherとRxPermissionsがあります。</p>
+<h2 id="permissionsdispatcherを用いたruntime-permissionのリクエスト">PermissionsDispatcherを用いたRuntime Permissionのリクエスト</h2>
+<p>PermissionsDispatcherを使ってRuntime Permissionをリクエストする方法を示します。</p>
+<ul>
+<li><a href="https://github.com/permissions-dispatcher/PermissionsDispatcher">permissions-dispatcher/PermissionsDispatcher: A declarative API to handle Android runtime permissions.</a></li>
+</ul>
+<p>とりあえずAndroidManifest.xmlにパーミッションを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#8839ef">&lt;uses-permission</span> <span style="color:#1e66f5">android:name=</span><span style="color:#40a02b">&#34;android.permission.READ_EXTERNAL_STORAGE&#34;</span><span style="color:#8839ef">/&gt;</span>
+</span></span></code></pre></div><p>app/build.gradleにPermissionDispatcherとkaptを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span>apply <span style="color:#04a5e5">plugin:</span> <span style="color:#40a02b">&#39;kotlin-kapt&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dependencies <span style="color:#04a5e5;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// PermissionDispatcher
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    implementation <span style="color:#40a02b">&#34;org.permissionsdispatcher:permissionsdispatcher:4.5.0&#34;</span>
+</span></span><span style="display:flex;"><span>    kapt <span style="color:#40a02b">&#34;org.permissionsdispatcher:permissionsdispatcher-processor:4.5.0&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Fragmentに <code>@RuntimePermissions</code> というアノテーションを付けます。PermissionsDispatcherによって自動生成されるメソッドがあるので、以下、適宜ビルドしながら進めます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@RuntimePermissions</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">StartFragment</span> : Fragment() {
+</span></span><span style="display:flex;"><span>   <span style="color:#9ca0b0;font-style:italic">// do something here
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p><code>READ_EXTERNAL_STORAGE</code> のパーミッションを得て、ギャラリーを表示するみたいな実装を想定して、パーミッション周りの処理を実装していきます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/** Permission Dispatcher */</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@NeedsPermission</span>(<span style="color:#df8e1d">Manifest</span>.permission.READ_EXTERNAL_STORAGE)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">showGallery</span>() {
+</span></span><span style="display:flex;"><span>    findNavController().navigate(<span style="color:#df8e1d">R</span>.id.action_start_to_gallery)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@OnShowRationale</span>(<span style="color:#df8e1d">Manifest</span>.permission.READ_EXTERNAL_STORAGE)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onShowRationaleForReadExternalStorage</span>(request: PermissionRequest) {
+</span></span><span style="display:flex;"><span>    showRationaleDialog(
+</span></span><span style="display:flex;"><span>        requireContext(),
+</span></span><span style="display:flex;"><span>        request,
+</span></span><span style="display:flex;"><span>        <span style="color:#df8e1d">R</span>.string.start_request_permission_for_read_external_storage
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@OnPermissionDenied</span>(<span style="color:#df8e1d">Manifest</span>.permission.READ_EXTERNAL_STORAGE)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onReadExternalStorageDenied</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">Toast</span>.makeText(requireContext(), <span style="color:#40a02b">&#34;Permission denied!&#34;</span>, <span style="color:#df8e1d">Toast</span>.LENGTH_LONG).show()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@OnNeverAskAgain</span>(<span style="color:#df8e1d">Manifest</span>.permission.READ_EXTERNAL_STORAGE)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onReadExternalStorageNeverAskAgain</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">Toast</span>.makeText(requireContext(), <span style="color:#40a02b">&#34;Never ask again!&#34;</span>, <span style="color:#df8e1d">Toast</span>.LENGTH_LONG).show()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>onRequestPermissionsResult()</code> をoverrideして、この中でPermissionsDispatcherによって自動生成される <code>onRequestPermissionsResult()</code> を呼び出せば、パーミッションの許可周りを適切にハンドリングしてくれます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onRequestPermissionsResult</span>(
+</span></span><span style="display:flex;"><span>    requestCode: Int,
+</span></span><span style="display:flex;"><span>    permissions: Array&lt;<span style="color:#8839ef">out</span> String&gt;,
+</span></span><span style="display:flex;"><span>    grantResults: IntArray
+</span></span><span style="display:flex;"><span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">super</span>.onRequestPermissionsResult(requestCode, permissions, grantResults)
+</span></span><span style="display:flex;"><span>    onRequestPermissionsResult(requestCode, grantResults)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>showRationaleDialog()</code> は拡張関数で定義しました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">Fragment</span>.showRationaleDialog(
+</span></span><span style="display:flex;"><span>    context: Context,
+</span></span><span style="display:flex;"><span>    request: PermissionRequest,
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5;font-weight:bold">@StringRes</span> messageResId: Int
+</span></span><span style="display:flex;"><span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">AlertDialog</span>.Builder(context)
+</span></span><span style="display:flex;"><span>        .setPositiveButton(<span style="color:#df8e1d">R</span>.string.ok) { _, _ <span style="color:#04a5e5;font-weight:bold">-&gt;</span> request.proceed() }
+</span></span><span style="display:flex;"><span>        .setNegativeButton(<span style="color:#df8e1d">R</span>.string.cancel) { _, _ <span style="color:#04a5e5;font-weight:bold">-&gt;</span> request.cancel() }
+</span></span><span style="display:flex;"><span>        .setMessage(messageResId)
+</span></span><span style="display:flex;"><span>        .show()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>最後に、PermissionsDispatcherによって自動生成された <code>showGalleryWithPermissionCheck()</code> を呼び出せば、パーミッションのチェックが走ります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>showGalleryWithPermissionCheck()
+</span></span></code></pre></div><h2 id="rxpermissionsを用いたruntime-permissionのリクエスト">RxPermissionsを用いたRuntime Permissionのリクエスト</h2>
+<p>RxPermissionsを使ってRuntime Permissionをリクエストする方法を示します。</p>
+<ul>
+<li><a href="https://github.com/tbruyelle/RxPermissions">tbruyelle/RxPermissions: Android runtime permissions powered by RxJava2</a></li>
+</ul>
+<p>プロジェクトレベルの <code>build.gradle</code> にJitPackのリポジトリを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span>allprojects <span style="color:#04a5e5;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    repositories <span style="color:#04a5e5;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>        maven <span style="color:#04a5e5;font-weight:bold">{</span> url <span style="color:#40a02b">&#39;https://jitpack.io&#39;</span> <span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span></code></pre></div><p>アプリレベルの <code>build.gradle</code> にRxJavaとRxPermissionsを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span>dependencies <span style="color:#04a5e5;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// RxJava
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    implementation <span style="color:#40a02b">&#39;io.reactivex.rxjava2:rxjava:2.2.13&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// RxPermissions
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    implementation <span style="color:#40a02b">&#39;com.github.tbruyelle:rxpermissions:0.10.2&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span></code></pre></div><p>AndroidManifest.xmlにパーミッションを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#8839ef">&lt;uses-permission</span> <span style="color:#1e66f5">android:name=</span><span style="color:#40a02b">&#34;android.permission.CAMERA&#34;</span> <span style="color:#8839ef">/&gt;</span>
+</span></span></code></pre></div><p>RxPermissionsによるRuntime Permissionの実装は簡単です。以下はFragmentでの実装になります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">val</span> <span style="color:#fe640b">rxPermissions</span> = RxPermissions(<span style="color:#8839ef">this</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>rxPermissions
+</span></span><span style="display:flex;"><span>    .request(<span style="color:#df8e1d">Manifest</span>.permission.CAMERA)
+</span></span><span style="display:flex;"><span>    .subscribe { granted <span style="color:#04a5e5;font-weight:bold">-&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">if</span> (granted) {
+</span></span><span style="display:flex;"><span>            <span style="color:#9ca0b0;font-style:italic">// permission granted
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>        } <span style="color:#8839ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#9ca0b0;font-style:italic">// permission denied
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span></code></pre></div>
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

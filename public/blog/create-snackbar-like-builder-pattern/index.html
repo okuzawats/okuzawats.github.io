@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] SnackbarをBuilderパターンっぽく表示したい | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] SnackbarをBuilderパターンっぽく表示したい" />
+  <meta name="description" content="AndroidのSnackbarをBuilderパターンっぽく表示する方法を模索した時のメモです。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] SnackbarをBuilderパターンっぽく表示したい</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2022-01-10' pubdate>
+        2022-01-10
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>2022年の今、遅きに失したというか今更感があるんですが&hellip;。AndroidのSnackbarについて、テキストの色、背景色、アクションなどよく変更する設定をBuilderパターンっぽく書きたいなと思いまして、ちょっと試してみました、というのがこの記事です。</p>
+<h2 id="builderクラスを作るパターン">Builderクラスを作るパターン</h2>
+<p>最初に試したのが、SnackbarBuilderというクラスを作るパターン（ソースコードは後述します）。本当は <code>Snackbar.Builder()</code> というようにBuilderのコンストラクタを呼び出したかったのですが、Kotlinの文法ではいい感じにできなさそうです。そのため、SnackbarBuilderというクラスを作った、というのがこのパターンです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>SnackbarBuilder()
+</span></span><span style="display:flex;"><span>  .view(view)
+</span></span><span style="display:flex;"><span>  .text(<span style="color:#40a02b">&#34;Awesome Text&#34;</span>)
+</span></span><span style="display:flex;"><span>  .textColor(<span style="color:#df8e1d">R</span>.color.text_color)
+</span></span><span style="display:flex;"><span>  .backgroundColor(<span style="color:#df8e1d">R</span>.color.background_color)
+</span></span><span style="display:flex;"><span>  .length(<span style="color:#df8e1d">Snackbar</span>.LENGTH_LONG)
+</span></span><span style="display:flex;"><span>  .action(<span style="color:#40a02b">&#34;Action&#34;</span>) { <span style="color:#9ca0b0;font-style:italic">/* TODO */</span> }
+</span></span><span style="display:flex;"><span>  .actionTextColor(<span style="color:#df8e1d">R</span>.color.text_color)
+</span></span><span style="display:flex;"><span>  .build()
+</span></span><span style="display:flex;"><span>  .show()
+</span></span></code></pre></div><p>本来やりたかったことがだいたいできているんですが、viewとtextは必須にしたいです（lengthはデフォルト値を決めておけば必須でなくても良い）。SnackbarBuilderのコンストラクタでviewとtextを受け取るようにもできますが、それならば標準で用意されている <code>Snackbar#make</code> を使った方が筋が良さそうです。</p>
+<p>ということで、没案となったSnackbarBuilderの（実験的な）ソースコードはこちらです。このコードブロックのあとに改善版を示しますので、改善版をすぐに見たい方は急いでスクロールしてください。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">SnackBarBuilder</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">view</span>: View? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">string</span>: String? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@ColorRes</span> <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">textColor</span>: Int? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@ColorRes</span> <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">backgroundColor</span>: Int? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">length</span>: Int = <span style="color:#df8e1d">Snackbar</span>.LENGTH_SHORT
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">actionString</span>: String? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">action</span>: ((View) <span style="color:#04a5e5;font-weight:bold">-&gt;</span> Unit)? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@ColorRes</span> <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">actionTextColor</span>: Int? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">view</span>(view: View): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.view = view
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">text</span>(string: String): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.string = string
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">textColor</span>(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> textColor: Int): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.textColor = textColor
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">backgroundColor</span>(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> backgroundColor: Int): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.backgroundColor = backgroundColor
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">length</span>(length: Int): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.length = length
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">action</span>(actionText: String, action: (View) <span style="color:#04a5e5;font-weight:bold">-&gt;</span> Unit): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.actionString = actionText
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.action = action
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">actionTextColor</span>(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> actionTextColor: Int): SnackBarBuilder =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>      <span style="color:#8839ef">it</span>.actionTextColor = actionTextColor
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">build</span>(): Snackbar {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">view</span> = requireNotNull(view)
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">string</span> = requireNotNull(string)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">snackBar</span> = <span style="color:#df8e1d">Snackbar</span>.make(view, string, length)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">if</span> (textColor <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span>) {
+</span></span><span style="display:flex;"><span>      snackBar.view
+</span></span><span style="display:flex;"><span>          .findViewById&lt;TextView&gt;(<span style="color:#df8e1d">R</span>.id.snackbar_text)
+</span></span><span style="display:flex;"><span>          .setTextColor(
+</span></span><span style="display:flex;"><span>            <span style="color:#df8e1d">ContextCompat</span>.getColor(view.context, requireNotNull(textColor))
+</span></span><span style="display:flex;"><span>          )
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">if</span> (backgroundColor <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span>) {
+</span></span><span style="display:flex;"><span>      snackBar.view
+</span></span><span style="display:flex;"><span>          .setBackgroundColor(
+</span></span><span style="display:flex;"><span>            <span style="color:#df8e1d">ContextCompat</span>.getColor(view.context, requireNotNull(backgroundColor))
+</span></span><span style="display:flex;"><span>          )
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">if</span> (actionString <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span> <span style="color:#04a5e5;font-weight:bold">&amp;&amp;</span> action <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span>) {
+</span></span><span style="display:flex;"><span>      snackBar.setAction(actionString, action)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">if</span> (actionTextColor <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span>) {
+</span></span><span style="display:flex;"><span>      snackBar.setActionTextColor(
+</span></span><span style="display:flex;"><span>        <span style="color:#df8e1d">ContextCompat</span>.getColor(view.context, requireNotNull(actionTextColor))
+</span></span><span style="display:flex;"><span>      )
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> snackBar
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>長い！</p>
+<h2 id="拡張関数で頑張るパターン">拡張関数で頑張るパターン</h2>
+<p>次に試したのが、Kotlinの拡張関数で頑張るパターンです。こちらのパターンは、標準で用意されている <code>Snackbar#make</code> を使ってSnackbarのインスタンスを生成した後、その他の属性値をBuilderパターンっぽく渡せるようにしています。とりあえずは、この実装で満足しました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#df8e1d">Snackbar</span>.make(view, <span style="color:#40a02b">&#34;Awesome Text&#34;</span>, <span style="color:#df8e1d">Snackbar</span>.LENGTH_LONG)
+</span></span><span style="display:flex;"><span>  .textColor(<span style="color:#df8e1d">R</span>.color.text_color)
+</span></span><span style="display:flex;"><span>  .backgroundColor(<span style="color:#df8e1d">R</span>.color.background_color)
+</span></span><span style="display:flex;"><span>  .action(<span style="color:#40a02b">&#34;Action&#34;</span>) { <span style="color:#9ca0b0;font-style:italic">/* TODO */</span> }
+</span></span><span style="display:flex;"><span>  .actionTextColor(<span style="color:#df8e1d">R</span>.color.text_color)
+</span></span><span style="display:flex;"><span>  .show()
+</span></span></code></pre></div><p>Kotlinの拡張関数で頑張るパターンのソースコードを以下に示します。Snackbarに対して自身を返す拡張関数を定義して、 <code>also</code> 内で追加の属性値を設定しています。先程の実装よりもこちらの実装の方が短く書けますね。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">Snackbar</span>.textColor(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> color: Int): Snackbar =
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">it</span>.view
+</span></span><span style="display:flex;"><span>      .findViewById&lt;TextView&gt;(<span style="color:#df8e1d">R</span>.id.snackbar_text)
+</span></span><span style="display:flex;"><span>      .setTextColor(<span style="color:#df8e1d">ContextCompat</span>.getColor(context, color))
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">Snackbar</span>.backgroundColor(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> color: Int): Snackbar =
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">it</span>.view
+</span></span><span style="display:flex;"><span>      .setBackgroundColor(<span style="color:#df8e1d">ContextCompat</span>.getColor(context, color))
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">Snackbar</span>.action(text: String, action: (View) <span style="color:#04a5e5;font-weight:bold">-&gt;</span> Unit): Snackbar =
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">it</span>.setAction(text, action)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">Snackbar</span>.actionTextColor(<span style="color:#1e66f5;font-weight:bold">@ColorRes</span> color: Int): Snackbar =
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">this</span>.also {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">it</span>.setActionTextColor(<span style="color:#df8e1d">ContextCompat</span>.getColor(context, color))
+</span></span><span style="display:flex;"><span>  }
+</span></span></code></pre></div><p>今更感がすごいですが、きれいに書けるようになって自分的には満足です。</p>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

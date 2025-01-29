@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] RecyclerViewのLayoutManagerをxmlで指定する | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] RecyclerViewのLayoutManagerをxmlで指定する" />
+  <meta name="description" content="AndroidのRecyclerViewのLayoutManagerをxmlで指定する方法です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] RecyclerViewのLayoutManagerをxmlで指定する</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2019-10-26' pubdate>
+        2019-10-26
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>RecyclerViewのLayoutManagerをKotlin / Javaのコードで指定しているケースを散見しますが、RecyclerViewのLayoutManagerはxml側でも定義できます。個人的には、LayoutManagerをxml側で定義した方がロジックとレイアウトを分離できて良いと感じています。</p>
+<p>xml側でRecyclerViewのLayoutManagerを指定する方法は、以下のように <code>app:layoutManager</code> にLayoutManagerを指定します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#8839ef">&lt;androidx.recyclerview.widget.RecyclerView</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:id=</span><span style="color:#40a02b">&#34;@+id/recycler_view&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_width=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_height=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">app:layoutManager=</span><span style="color:#40a02b">&#34;androidx.recyclerview.widget.LinearLayoutManager&#34;</span><span style="color:#8839ef">/&gt;</span>
+</span></span></code></pre></div><p>上記の例ではLayoutManagerにLinearLayoutManagerを指定しています。LinearLayoutManagerは、Orientationに縦か横のどちらかを指定できます。デフォルトのOrientationは縦ですので、特に指定がなければ縦に要素が並びます。LinearLayoutManagerのOrientationを明示的に指定するには、 <code>orientation</code> に <code>vertical</code> か <code>horizontal</code> を指定します。以下は <code>vertical</code> の例です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#8839ef">&lt;androidx.recyclerview.widget.RecyclerView</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:id=</span><span style="color:#40a02b">&#34;@+id/recycler_view&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_width=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_height=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:orientation=</span><span style="color:#40a02b">&#34;vertical&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">app:layoutManager=</span><span style="color:#40a02b">&#34;androidx.recyclerview.widget.LinearLayoutManager&#34;</span><span style="color:#8839ef">/&gt;</span>
+</span></span></code></pre></div><p>LayoutManagerにGridLayoutManagerを指定する場合、一行あたりのセルの数は、 <code>spanCount</code> で指定できます。以下は <code>spanCount</code> として2を指定する例です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#8839ef">&lt;androidx.recyclerview.widget.RecyclerView</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:id=</span><span style="color:#40a02b">&#34;@+id/recycler_view&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_width=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:layout_height=</span><span style="color:#40a02b">&#34;match_parent&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">android:orientation=</span><span style="color:#40a02b">&#34;vertical&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">app:spanCount=</span><span style="color:#40a02b">&#34;2&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#1e66f5">app:layoutManager=</span><span style="color:#40a02b">&#34;androidx.recyclerview.widget.GridLayoutManager&#34;</span><span style="color:#8839ef">/&gt;</span>
+</span></span></code></pre></div>
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

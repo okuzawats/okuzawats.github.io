@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Kotlin] nullオブジェクトパターン | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Kotlin] nullオブジェクトパターン" />
+  <meta name="description" content="Kotlinによるnullオブジェクトパターンのサンプルコードです。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Kotlin] nullオブジェクトパターン</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2022-02-07' pubdate>
+        2022-02-07
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>Kotlinでnullオブジェクトパターンを実装する例です。こんな感じのinterfaceを考えます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">AwesomeRunnable</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">runSomething</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="nullオブジェクトパターンを使わない場合">nullオブジェクトパターンを使わない場合</h2>
+<p>nullオブジェクトパターンを使わない場合は、こんな感じのifチェックを呼び出し側で毎回書かないといけません。対象の変数がnullなのかどうかということに興味がある場合は毎回nullチェックをするのもやぶさかではありません。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">main</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">awesomeRunnable</span>: AwesomeRunnable? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">if</span> (awesomeRunnable <span style="color:#04a5e5;font-weight:bold">!=</span> <span style="color:#8839ef">null</span>) {
+</span></span><span style="display:flex;"><span>    awesomeRunnable.runSomething()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="nullオブジェクトパターンを使う場合">nullオブジェクトパターンを使う場合</h2>
+<p>対象の変数がnullなのかどうかということに興味がない場合もあります。こういう場合はnullオブジェクトパターンの使用に一考の価値があります。</p>
+<p>以下のコードは「何かを行う」関数を呼び出しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">main</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">doSomethingRunnable</span>: AwesomeRunnable = <span style="color:#8839ef">object</span> <span style="color:#d20f39">: </span><span style="color:#df8e1d">AwesomeRunnable</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">runSomething</span>() {
+</span></span><span style="display:flex;"><span>      println(<span style="color:#40a02b">&#34;do something&#34;</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  doSomethingRunnable.runSomething()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>これに対して、以下のコードはnullオブジェクトパターンを用いた「何もしない」関数を呼び出しています。この場合は、インスタンスに対して <code>runSomething</code> 関数を呼び出しても、実際には何の処理も行われません<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup><sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">main</span>(args: Array&lt;String&gt;) {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">doNothingRunnable</span>: AwesomeRunnable = <span style="color:#8839ef">object</span> <span style="color:#d20f39">: </span><span style="color:#df8e1d">AwesomeRunnable</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">runSomething</span>() {
+</span></span><span style="display:flex;"><span>      <span style="color:#9ca0b0;font-style:italic">// NOP
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  doNothingRunnable.runSomething()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>nullオブジェクトパターンを用いたことで、「何かを行う」場合も「何もしない」場合も、処理を呼び出す側ではnullチェックが不要となっています。このように、オブジェクトがnullかどうかということには関心を持ちたくないが、実際には処理を呼び出した時に何もしないで欲しいことがある、という場合にnullオブジェクトパターンが使えることがあります。</p>
+<p>上記の例ではオブジェクト式を用いた無名クラスでnullオブジェクトを作成していますが、以下のようにnullオブジェクトをひとつだけ定義しておけば、コードの重複を防ぐことができます<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">object</span> <span style="color:#df8e1d">NullRunnable</span> : AwesomeRunnable {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">runSomething</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// NOP
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><code>Unit</code> を返す、という処理は行われます。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>Kotlinの <code>object</code> キーワードを用いていますが、nullオブジェクトの「オブジェクト」とはあまり関係がありません。&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p>この例でもKotlinの <code>object</code> キーワードを用いていますが、こちらもnullオブジェクトの「オブジェクト」とはあまり関係がありません。&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/nullable-or-non-null/">[Kotlin] Non-Nullにこだわらず、適切にNullableを使う</a></li>
+  
+  <li><a href="/blog/do-not-abuse-short-circuit/">短絡評価を乱用しないでください🙅‍♂️</a></li>
+  
+  <li><a href="/blog/kotlin-no-operation-function/">[Kotlin] 「何もしない」関数をいい感じに書きたい</a></li>
+  
+  <li><a href="/blog/where-to-place-private-methods/">privateメソッドをどこに書くか</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

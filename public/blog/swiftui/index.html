@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>はじめてのSwiftUI | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="はじめてのSwiftUI" />
+  <meta name="description" content="SwiftUIについて学びます。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>はじめてのSwiftUI</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-08-16' pubdate>
+        2024-08-16
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>SwiftUIについて学んでいこうと思いますので、SwiftUIのコードを読んでいきます。まずはXcodeから新たにSwiftUIのファイルを作成すると、こんな感じのコードが生成されます。Xcodeのバージョンは <code>15.4</code> です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#d20f39">import</span> <span style="color:#df8e1d">SwiftUI</span>
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">struct</span> <span style="color:#df8e1d">MyFirstSwiftUI</span>: View {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">var</span> <span style="color:#dc8a78">body</span>: some View {
+</span></span><span style="display:flex;"><span>    Text(<span style="color:#40a02b">&#34;Hello, World!&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>#Preview {
+</span></span><span style="display:flex;"><span>  MyFirstSwiftUI()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>1行目から見ていきます。1行目には <code>import</code> が書かれています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#d20f39">import</span> <span style="color:#df8e1d">SwiftUI</span>
+</span></span></code></pre></div><p>Swiftにおける <code>import</code> は、モジュールやフレームワークを使用可能にするためのキーワードです。ここでは、 <code>SwiftUI</code> を <code>import</code> しています。これによって、SwiftUIを使用できる状態になります。</p>
+<p>空行を挟んで3行目には以下のコードが書かれています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span><span style="color:#d20f39">struct</span> <span style="color:#df8e1d">MyFirstSwiftUI</span>: View {
+</span></span></code></pre></div><p><code>struct</code> は、構造体を宣言するためのキーワードです。ここでは、 <code>MyFirstSwiftUI</code> という名前の構造体を宣言しています。また、 <code>: View</code> は、 <code>MyFirstSwiftUI</code> が <code>View</code> プロトコルに準拠していることを宣言しています。 <code>View</code> プロトコルに準拠している型は、Viewの表示内容を示すために後述する <code>body</code> を宣言する必要があります。</p>
+<p>その <code>body</code> は、4行目で宣言されています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>  <span style="color:#d20f39">var</span> <span style="color:#dc8a78">body</span>: some View {
+</span></span></code></pre></div><p><code>some</code> は、ここでは <code>body</code> が <code>View</code> プロトコルに準拠する何らかの型である、ということを表すSwiftのキーワードです。これは、<strong>Opaque Return Type</strong>と呼ばれます。金田(2019)では、以下のように説明されています。</p>
+<blockquote>
+<p>これは「Viewプロトコルを採用した何らかの型」を意味し、someがつけられた型をOpaque Return Typeと呼びます。一言でいうと戻り値の型を抽象的に記述する方法です。</p>
+<p>ジェネリクスが抽象化するのは引数のみですが、Opaque Return Typeは、関数の戻り値や、この例のようにプロパティの型指定を抽象化します。</p>
+</blockquote>
+<p>すなわち、 <code>body</code> は <code>View</code> プロトコルに準拠する型を返す、computed propertyである、ということです。具体的に何を返すのか？は次の5行目を見ます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>    Text(<span style="color:#40a02b">&#34;Hello, World!&#34;</span>)
+</span></span></code></pre></div><p>今回のサンプルコードでは、この <code>Text</code> が <code>View</code> プロトコルに準拠する型となっています。 <code>View</code> プロトコルに準拠する具体的な型によってUIにどのように表示されるのかは異なり、 <code>Text</code> はテキストを表示するための型です。 <code>MyFirstSwiftUI</code> の <code>body</code> の具象は <code>Text</code> であり、抽象は <code>View</code> であると言えます。</p>
+<p>さて、 <code>body</code> の本体である以下のコードを評価した結果が <code>Text</code> となるのは何故でしょうか。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>{ Text(<span style="color:#40a02b">&#34;Hello, World!&#34;</span>) }
+</span></span></code></pre></div><p>これは、Swiftのクロージャに単一の式のみが書かれている場合、 <code>return</code> を省略してもその単一式の評価結果を返すためです。すなわち、上記のクロージャ内に唯一存在する式である <code>Text(&quot;Hello, World!&quot;)</code> の評価結果が返されるということです。</p>
+<p>このSwiftの構文により、SwiftUIの構文をシンプルに書くことができています。</p>
+<p>次に、9行目〜11行目を見てみます。 <code>#Preview</code> は、SwiftUIのViewをプレビューするためのマクロです。以下の例では第1引数が省略され、第2引数として <code>View</code> プロトコルを返すクロージャを渡しています（trailing closure構文が使われています）。このViewがXcode上にプレビューされます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>#Preview {
+</span></span><span style="display:flex;"><span>  MyFirstSwiftUI()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><a href="https://developer.apple.com/documentation/swiftui/preview%28_:body:%29">Appleのドキュメント</a>には、以下のように第1引数の使い方が示されています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-swift" data-lang="swift"><span style="display:flex;"><span>#Preview(<span style="color:#40a02b">&#34;Input true&#34;</span>) {
+</span></span><span style="display:flex;"><span>    ContentView(someInput: <span style="color:#fe640b">true</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>#Preview(<span style="color:#40a02b">&#34;Input false&#34;</span>) {
+</span></span><span style="display:flex;"><span>    ContentView(someInput: <span style="color:#fe640b">false</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="references">References</h2>
+<ol>
+<li><a href="https://developer.apple.com/documentation/swiftui/view">View | Apple Developer Documentation</a>（最終アクセス日：2024/08/16）</li>
+<li><a href="https://docs.swift.org/swift-book/documentation/the-swift-programming-language/opaquetypes/">Opaque and Boxed Protocol Types | Documentation</a>（最終アクセス日：2024/08/16）</li>
+<li>金田浩明, (2019), SwiftUI 徹底入門, SB Creative</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/text">Text | Apple Developer Documentation</a>（最終アクセス日：2024/08/16）</li>
+<li><a href="https://developer.apple.com/documentation/swiftui/preview%28_:body:%29">Preview(_:body:) | Apple Developer Documentation</a></li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/swift-fizzbuzz/">SwiftでFizzBuzz</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

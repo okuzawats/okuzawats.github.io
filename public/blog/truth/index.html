@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>Truth によるアサーション入門 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="Truth によるアサーション入門" />
+  <meta name="description" content="Google が中心となって開発している、Java / Android 向けのアサーションライブラリ Truth の使い方の紹介です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>Truth によるアサーション入門</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2022-10-08' pubdate>
+        2022-10-08
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>Truth は、Google が中心となって開発している、Java / Android 向けのアサーションライブラリです。本記事では、Truth を用いてアサーションを行う方法を紹介します。Truth のすべての API に触れることはできませんので、筆者が代表的な API と考える API について触れていきます。より詳しい内容については、Truth の Web サイトを参照してください。</p>
+<ul>
+<li><a href="https://truth.dev/">Truth - Fluent assertions for Java and Android</a></li>
+</ul>
+<p>androidx.test による Truth の拡張については本記事では触れませんので、androidx.test のドキュメントを参照してください。</p>
+<ul>
+<li><a href="https://developer.android.com/reference/androidx/test/packages">Package Index | Android Developers</a></li>
+</ul>
+<h2 id="アサーションライブラリとは">アサーションライブラリとは</h2>
+<p>アサーションライブラリとは、テストコードにおけるアサーションの可読性を上げ、またアサーションを書きやすくしてくれるライブラリです。アサーションに失敗した時のメッセージもわかりやすくしてくれるため、どういう理由でテストが失敗したのかも把握しやすくなります。</p>
+<p>Java 向けのアサーションライブラリも種々ありますが、その中で Truth の特徴は、シンプルな API を提供していること、Android のサポートがあることがあげられます。前者の「シンプルな API を提供していること」は、テストコードを書く場合に考えることを減らして、機能の実装に集中することができるというメリットがあります。後者の「Android のサポートがあること」については、Android のプロジェクトで Truth を導入することを後押ししてくれます。</p>
+<p>本書では、Android のプロジェクトのユニットテストに Truth を導入するケースを想定し、Truth による基本的なアサーションについて紹介します。</p>
+<h2 id="android-のプロジェクトへの-truth-の導入">Android のプロジェクトへの Truth の導入</h2>
+<p>Android のプロジェクトに Truth を導入するには、<code>build.gradle</code> または <code>build.gradle.kts</code> に以下のような記述を追加します（以下の例は <code>build.gradle</code> の場合です）。Truth のバージョンは、執筆時点の最新版を使用しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-groovy" data-lang="groovy"><span style="display:flex;"><span>dependencies <span style="color:#04a5e5;font-weight:bold">{</span>
+</span></span><span style="display:flex;"><span>  testImplementation <span style="color:#40a02b">&#34;com.google.truth:truth:1.1.3&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#04a5e5;font-weight:bold">}</span>
+</span></span></code></pre></div><p>Android Studio 上で Gradle Sync を行えば、Truth の導入は完了です。</p>
+<h2 id="boolean-のアサーション">Boolean のアサーション</h2>
+<p>はじめに、Boolean 型の値に対して利用可能な Truth のアサーションを紹介します。</p>
+<p>Truth での Boolean 型のアサーションについて、覚えておくべきことはあまり多くありません。Boolean 型の値は <code>true</code> と <code>false</code> のどちらかのみとなります。そのため、Boolean 型に対するアサーションで主に使用する関数は 2 つのみです。</p>
+<p>そのうちの 1 つは <code>isTrue</code> です。Truth の <code>isTrue</code> を用いた Boolean 型の値に対するアサーションは、以下のように行います。 <code>assertThat</code> は Truth の提供する関数で、引数としてテスト対象となる実測値（actual）を渡します。実測値が <code>true</code> の場合は、テストが成功します。逆に実測値が <code>false</code> の場合はテストが失敗します。言い方を変えれば、このアサーションにおける期待値（expected）が <code>true</code> であるということを表しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isTrue() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean = <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isTrue()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>もう 1 つは <code>isFalse</code> です。こちらは <code>isTrue</code> と逆に、実測値が <code>false</code> の時にテストが成功します。このアサーションの期待値は <code>false</code> です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isFalse() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean = <span style="color:#8839ef">false</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isFalse()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>以上です！</p>
+<p>Truth を用いることで、 <code>assertThat(actual).isTrue()</code> というようにアサーションを書くことができました。このコードは、&ldquo;assert that actual is true.&ldquo;というように、自然言語（英語）のように読むことができます。筆者は、とても可読性の高いテストコードであると思います。Truth を用いることで、このように読みやすいアサーションを書けるようになります。次節以降、他のアサーションについて紹介していきます。</p>
+<p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">BooleanTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isTrue() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean = <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isTrue()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isFalse() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean = <span style="color:#8839ef">false</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isFalse()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="nullable-のアサーション">Nullable のアサーション</h2>
+<p>本節では、Nullable な型に対して利用可能な Truth のアサーションを紹介します。</p>
+<p>一口に Nullable と言っても、様々な型に対する Nullable があります。Kotlin では、任意の <code>T</code> 型に対する Nullable を <code>T?</code> として表現します。この <code>T?</code> 型に対するアサーションは、 <code>T</code> がどのような型かによってどのようなアサーションが適用可能かが決まり、一概にどのようなアサーションを適用できるとは言えません。しかしながら、Nullable な型の値が <code>null</code> なのかそうでないかということに着目すれば、2 通りのアサーションを考えればことが足ります。</p>
+<p>以下、Boolean? 型を例としたサンプルコードを示します。</p>
+<p>Nullable な型の値が <code>null</code> か否か、ということに着目した 1 つめのアサーションは、 <code>isNull</code> です。以下のテストケースでは、実測値が <code>null</code> の時、テストが成功します。すなわち、このアサーションの期待値は <code>null</code> です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNull() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isNull()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>2 つめは、 <code>isNotNull</code> です。このアサーションは、実測値が Non-Null であることを期待します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotNull() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean? = <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isNotNull()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>null</code> かそうでないかに着目したアサーションは、以上の 2 種類です。型 <code>T</code> がどのような型なのかに応じて他に必要となるテストケースは様々あるとおもいますが、実測値が <code>null</code> なのかそうでないかという観点では、この 2 種類のアサーションを利用することができます。</p>
+<p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">NullableTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNull() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isNull()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotNull() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Boolean? = <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isNotNull()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="string-のアサーション">String のアサーション</h2>
+<p>本節では、String 型に対して利用可能な Truth のアサーションを紹介します。</p>
+<p>はじめに、<code>isEqualTo</code> を紹介します。<code>isEqualTo</code> はまた後で出てきますが、少し使い方に注意が必要なアサーションです。しかし、String 型に対しては完全に機能します。以下のサンプルコードは、実測値と期待値の文字列が文字列として等しいことを検証しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEqualTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .isEqualTo(<span style="color:#40a02b">&#34;hello world&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>文字列の大文字・小文字を気にしなくて良い場合は、以下のサンプルコードのように <code>ignoringCase</code> を用いることができます。以下のサンプルコードでは、<code>hello world</code> という文字列と <code>HELLO WORLD</code> という文字列の大文字・小文字を無視して比較しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_ignoreCase_isEqualTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .ignoringCase()
+</span></span><span style="display:flex;"><span>    .isEqualTo(<span style="color:#40a02b">&#34;HELLO WORLD&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>hasLength</code> は、文字列の文字数を検証するために利用できます。以下のサンプルコードでは、実測値の文字数が 11 文字ですので、アサーションに成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_hasLength() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .hasLength(<span style="color:#fe640b">11</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>startsWith</code> は、実測値が特定の文字列から開始されていることを検証します。以下のサンプルコードでは、実測値が <code>hello</code> から始まっているため、アサーションに成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_startsWith() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .startsWith(<span style="color:#40a02b">&#34;hello&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>endsWith</code> は、<code>startsWith</code> とは逆に、実測値が特定の文字列で終了していることを検証します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_endsWith() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .endsWith(<span style="color:#40a02b">&#34;world&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isEmpty</code> は、実測値が空文字（ Kotlin では <code>&quot;&quot;</code> ）であることを検証します。実測値が 1 文字以上の文字列だった場合、<code>null</code> の場合にはアサーションが失敗します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEmpty() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .isEmpty()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isNotEmpty</code> は、実測値が空文字でない、すなわち 1 文字以上の文字列であることを検証します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotEmpty() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .isNotEmpty()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>contains</code> は、実測値に特定の文字列が含まれていることを検証します。以下のサンプルコードでは、実測値である <code>hello world</code> という文字列の中に <code>wor</code> という文字列が含まれています。そのため、このアサーションに成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_contains() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .contains(<span style="color:#40a02b">&#34;wor&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>doesNotContain</code> は、<code>contains</code> とは逆に、実測値に特定の文字列が含まれていないことを検証します。以下のサンプルコードでは、実測値である <code>hello world</code> という文字列の中に <code>zzz</code> という文字列はふくまれていないため、アサーションに失敗します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_doesNotContains() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .doesNotContain(<span style="color:#40a02b">&#34;zzz&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>containsMatch</code> は、正規表現を用いて文字列の検証を行います。実測値が正規表現にマッチした場合に検証が成功します。正規表現についてはここでは触れませんが、<code>containsMatch</code> を使いこなすことで、非常にパワフルな文字列の検証を行うことができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_containsMatch() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .containsMatch(<span style="color:#40a02b">&#34;^hello [a-z]+&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>doesNotContainMatch</code> は、<code>containsMatch</code> とは逆に、実測値が正規表現にマッチしないことを検証します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testDoesNotContainMatch</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .doesNotContainMatch(<span style="color:#40a02b">&#34;^[A-Z]+&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">StringTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEqualTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .isEqualTo(<span style="color:#40a02b">&#34;hello world&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_ignoreCase_isEqualTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .ignoringCase()
+</span></span><span style="display:flex;"><span>      .isEqualTo(<span style="color:#40a02b">&#34;HELLO WORLD&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_hasLength() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .hasLength(<span style="color:#fe640b">11</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_startsWith() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .startsWith(<span style="color:#40a02b">&#34;hello&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_endsWith() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .endsWith(<span style="color:#40a02b">&#34;world&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEmpty() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .isEmpty()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotEmpty() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .isNotEmpty()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_contains() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .contains(<span style="color:#40a02b">&#34;wor&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_doesNotContains() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .doesNotContain(<span style="color:#40a02b">&#34;zzz&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_containsMatch() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .containsMatch(<span style="color:#40a02b">&#34;^hello [a-z]+&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testDoesNotContainMatch</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: String = <span style="color:#40a02b">&#34;hello world&#34;</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .doesNotContainMatch(<span style="color:#40a02b">&#34;^[A-Z]+&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="collection-のアサーション">Collection のアサーション</h2>
+<p>Truth では、Collection に対するアサーションが豊富に用意されています。ここですべてを紹介するのは難しいため、一部の代表的なアサーションの紹介に留めます。</p>
+<p><code>contains</code> は、String のアサーションの節でも出てきました。Collection に特定の値が含まれていることを検証します。以下のサンプルコードでは、実測値の <code>List</code> に <code>42</code> が含まれているため、アサーションが成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_contains() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .contains(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>containsExactly</code> は、実測値の Collection と <code>containsExactly</code> の可変長引数の要素がすべて 1 対 1 で対応していることを検証します。この時、順序は問いません。以下の例では、実測値の Collection と <code>containsExactly</code> の可変長引数は、共に <code>1</code> <code>2</code> <code>3</code> <code>42</code> <code>100</code> であり、すべて 1 対 1 で対応しているため、アサーションが成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_containsExactly() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .containsExactly(<span style="color:#fe640b">100</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">1</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isInOrder</code> は、実測値の Collection が順序通りに並んでいることを検証します（後述する Comparable とも関連します）。ラムダを用いてテストケース内で順序の比較方法を指定することが可能な <code>isInOrder</code> も用意されています。以下のサンプルコードでは、実測値の Collection が、整数値で小さいものから大きいものの順に並んでいるため、アサーションに成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isInOrder() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>    .isInOrder()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">CollectionTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_contains() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .contains(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_containsExactly() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .containsExactly(<span style="color:#fe640b">100</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">1</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isInOrder() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: List&lt;Int&gt; = listOf(<span style="color:#fe640b">1</span>, <span style="color:#fe640b">2</span>, <span style="color:#fe640b">3</span>, <span style="color:#fe640b">42</span>, <span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>)
+</span></span><span style="display:flex;"><span>      .isInOrder() <span style="color:#9ca0b0;font-style:italic">// ラムダなどのパターンあり
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="comparable-のアサーション">Comparable のアサーション</h2>
+<p>本節では、Comparable な型に対して利用可能な Truth のアサーションを紹介します。すなわち、Comparable インターフェースを実装した型（代表的なものは、Int 型です）の比較に関するアサーションです。ここでは、わかりやすく Int 型を用いてサンプルコードを示します。</p>
+<p><code>isGreaterThan</code> は、実測値が <code>isGreaterThan</code> の引数よりも大きいこと、つまり「実測値 &gt;  <code>isGreaterThan</code> の引数」となっていることを検証します。以下のサンプルコードにおいて、1 つめのアサーションで 42 &gt; 0 であることを検証しています。これは正しいためアサーションに成功します。2 つめのアサーションでも、42 &gt; 41 は正しいため、アサーションに成功します。一方、コメントアウトした 3 つめのアサーション 42 &gt; 42 は正しくないため、アサーションに失敗します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isGreaterThan() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isGreaterThan(<span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isGreaterThan(<span style="color:#fe640b">41</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// assertThat(actual).isGreaterThan(42) // 失敗
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p><code>isLessThan</code> は <code>isGreaterThan</code> と逆に、「実測値 &lt;  <code>isLessThan</code> の引数」となっていることを検証します。以下のサンプルコードでは、42 &lt; 100、42 &lt; 43 は正しいためアサーションに成功しますが、42 &lt; 42 は正しくないためアサーションに失敗します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isLessThan() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isLessThan(<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isLessThan(<span style="color:#fe640b">43</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// assertThat(actual).isLessThan(42) // 失敗
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p><code>isAtLeast</code> は <code>isGreaterThan</code> と似ていますが、こちらはいわゆる「大なりイコール」です。つまり、「実測値 &gt;= <code>isAtLeast</code> の引数」の時にアサーションが成功します。<code>isGreaterThan</code> との違いは、実測値と <code>isAtLeast</code> の引数の比較結果が同等である場合（ここで難しい言い回しをしている理由は、この記事を最後まで読むとわかると思います）にもアサーションが成功するという点にあります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isAtLeast() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isAtLeast(<span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isAtLeast(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isAtMost</code> は、いわゆる「小なりイコール」です。「実測値 &lt;=  <code>isAtMost</code> の引数」の時にアサーションが成功します。<code>isAtMost</code> と <code>isLessThan</code> の違いは、<code>isAtLeast</code> と <code>isGreaterThan</code> の場合の違いと同じです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isAtMost() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isAtMost(<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isAtMost(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isEquivalentAccordingToCompareTo</code> は、実測値と <code>isEquivalentAccordingToCompareTo</code> の引数の比較結果が同等である時にアサーションが成功します。つまり、ふたつの間に大小関係がない場合です。例として Int 型を用いているためにサンプルコードが難解になってしまっているのですが、Int 型の場合は <code>isEquivalentAccordingToCompareTo</code> ではなく <code>isEqualTo</code> を使うべきです。<code>isEquivalentAccordingToCompareTo</code> は、Comparable 間の大小関係がないことの検証に用いることができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEquivalentAccordingToCompareTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Comparable&lt;Int&gt; = <span style="color:#fe640b">42</span> <span style="color:#9ca0b0;font-style:italic">// Intの場合はisEqualToを使うのがよい
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  assertThat(<span style="color:#8839ef">actual</span>).isEquivalentAccordingToCompareTo(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isIn</code> は、実測値が範囲内に含まれていることを検証します。以下のサンプルコードでは、「0 &lt;= 実測値 &lt;= 100」であることを検証しています（ <code>..</code> は Range を表す Kotlin の演算子です）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isIn() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isIn(<span style="color:#fe640b">0.</span>.<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>isNotIn</code> も <code>isIn</code> と同様に範囲の検証に用いられるアサーションですが、こちらは実測値が範囲内に含まれていないことを検証します。以下のサンプルコードでは、「-100 &lt;= 実測値 &lt; 0」でないことを検証しています（ <code>until</code> も Range を表す Kotlin の演算子です。こちらは 2 つめの引数に対して開区間となります）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotIn() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isNotIn(-<span style="color:#fe640b">100</span> until <span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">ComparableTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isGreaterThan() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isGreaterThan(<span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isGreaterThan(<span style="color:#fe640b">41</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// assertThat(actual).isGreaterThan(42) // 失敗
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isLessThan() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isLessThan(<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isLessThan(<span style="color:#fe640b">43</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// assertThat(actual).isLessThan(42) // 失敗
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isAtLeast() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isAtLeast(<span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isAtLeast(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isAtMost() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isAtMost(<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isAtMost(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEquivalentAccordingToCompareTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Comparable&lt;Int&gt; = <span style="color:#fe640b">42</span> <span style="color:#9ca0b0;font-style:italic">// Intの場合はisEqualToを使うのがよい
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    assertThat(<span style="color:#8839ef">actual</span>).isEquivalentAccordingToCompareTo(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isIn() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isIn(<span style="color:#fe640b">0.</span>.<span style="color:#fe640b">100</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isNotIn() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isNotIn(-<span style="color:#fe640b">100</span> until <span style="color:#fe640b">0</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="isequalto-isnotequalto-を用いたアサーション">isEqualTo 、isNotEqualTo を用いたアサーション</h2>
+<p>「Comparable のアサーション」の節で少し触れましたが、例えば Int 型の実測値が期待値と一致することの検証は、以下のサンプルコードのように、<code>isEqualTo</code> を用いて行うことができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEqualTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = <span style="color:#fe640b">40</span> + <span style="color:#fe640b">2</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isEqualTo(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>この <code>isEqualTo</code> 、簡単そうに見えますが、使い方に少し注意が必要です。</p>
+<p>例えば、実測値と期待値が共に SomeClass のインスタンスである時、以下のサンプルコードのアサーションは成功しそうに見えますが、実際には失敗します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_someClass_isEqualTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = SomeClass()
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">expected</span> = SomeClass()
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isEqualTo(expected) <span style="color:#9ca0b0;font-style:italic">// 失敗
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>これは何故かというと、<code>isEqualTo</code> は期待値と実測値の <code>equals</code> の結果をアサーションに用いているからです（ライブラリの内部ではもう少し複雑なことをやっていますが、ライブラリを使う側ではそれを意識する必要はないと思います）。</p>
+<p>そのため、例えば以下のサンプルコードのように、乱暴に <code>equals</code> をオーバーライドすれば、上記のアサーションが成功するようになります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">SomeClass</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">equals</span>(other: Any?): Boolean {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> other <span style="color:#8839ef">is</span> SomeClass
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>プリミティブな値の検証や、Kotlin のデータクラスの検証を行う場合は、<code>isEqualTo</code> は非常に便利に利用できます。それ以外の場合については、上記の内容に注意しましょう。</p>
+<p><code>isEqualTo</code> の逆に、<code>isNotEqualTo</code> は、実測値と期待値の <code>equals</code> が false を返すことを検証します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_otherClass_isNotEqualTo() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = OtherClass()
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">expected</span> = OtherClass()
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isNotEqualTo(expected)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">SomeClass</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">equals</span>(other: Any?): Boolean {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> other <span style="color:#8839ef">is</span> SomeClass
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">OtherClass</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">EqualToTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_isEqualTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = <span style="color:#fe640b">40</span> + <span style="color:#fe640b">2</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isEqualTo(<span style="color:#fe640b">42</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_someClass_isEqualTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = SomeClass()
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">expected</span> = SomeClass()
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// SomeClassは同じ型同士で比較した時に `equalTo` がtrueを返す
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    assertThat(<span style="color:#8839ef">actual</span>).isEqualTo(expected)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_otherClass_isNotEqualTo() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = OtherClass()
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">expected</span> = OtherClass()
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isNotEqualTo(expected)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="isinstanceof-を用いた型のアサーション">isInstanceOf を用いた型のアサーション</h2>
+<p><code>isInstanceOf</code> を用いて、型の検証を行うことができます。</p>
+<p>以下のサンプルコードでは、実測値が Comparable 型であることの検証を行っています。Kotlin の Int 型は Comparable interface を実装していますので、アサーションに成功します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_instanceOf() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>  assertThat(<span style="color:#8839ef">actual</span>).isInstanceOf(Comparable<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>.java)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">InstanceOfTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_instanceOf() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span>: Int = <span style="color:#fe640b">42</span>
+</span></span><span style="display:flex;"><span>    assertThat(<span style="color:#8839ef">actual</span>).isInstanceOf(Comparable<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>.java)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="例外送出のアサーション">例外送出のアサーション</h2>
+<p>Truth は、直接的に例外が送出される処理の検証を行う API を提供していないようです。</p>
+<p>そのため、Truth の API を用いて例外送出の検証をするためには、少し冗長ではありますが以下のようなコードを書く必要があると思います。前述の <code>isInstanceOf</code> で例外型の検証を行うこともできるでしょう。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_throwable() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">var</span> <span style="color:#fe640b">throwable</span>: Throwable? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">try</span> {
+</span></span><span style="display:flex;"><span>    ThrowException()
+</span></span><span style="display:flex;"><span>      .throwException()
+</span></span><span style="display:flex;"><span>  } <span style="color:#8839ef">catch</span> (e: Throwable) {
+</span></span><span style="display:flex;"><span>    throwable = e
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  assertThat(throwable)
+</span></span><span style="display:flex;"><span>    .isNotNull()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>または、例外送出の検証については Truth を用いることを諦め、テスティングフレームワークの機能で行う方法もあると思います。</p>
+<p>本節のコードを以下にまとめます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.truth</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">com.google.common.truth.Truth.assertThat</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">org.junit.Test</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">ThrowException</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">throwException</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">throw</span> Throwable()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">ExceptionTest</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">test</span>_throwable() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">var</span> <span style="color:#fe640b">throwable</span>: Throwable? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">try</span> {
+</span></span><span style="display:flex;"><span>      ThrowException()
+</span></span><span style="display:flex;"><span>        .throwException()
+</span></span><span style="display:flex;"><span>    } <span style="color:#8839ef">catch</span> (e: Throwable) {
+</span></span><span style="display:flex;"><span>      throwable = e
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    assertThat(throwable)
+</span></span><span style="display:flex;"><span>      .isNotNull()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div>
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+  <li><a href="/blog/truth-custom-subject/">Truthのカスタムサブジェクトを定義する</a></li>
+  
+  <li><a href="/blog/mockk/">Mockk によるモック入門</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

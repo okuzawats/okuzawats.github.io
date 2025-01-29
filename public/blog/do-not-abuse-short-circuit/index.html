@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>短絡評価を乱用しないでください🙅‍♂️ | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="短絡評価を乱用しないでください🙅‍♂️" />
+  <meta name="description" content="短絡評価を乱用すると、思いがけない不具合を生みます。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>短絡評価を乱用しないでください🙅‍♂️</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2023-03-16' pubdate>
+        2023-03-16
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>多くのプログラミング言語では、論理演算は短絡評価されます。Kotlinの文法であれば、 <code>a &amp;&amp; b</code> で <code>a</code> がfalseであれば <code>b</code> は評価されず、 <code>a || b</code> で <code>a</code> がtrueであれば <code>b</code> は評価されないということです（無駄なので）。</p>
+<p>これを利用して、ハック的なコードを書くことが可能です。</p>
+<p>わかりやすい例を提示します。以下のコードでは、 <code>someBool()</code> がtrueを返した時は <code>some()</code> のブロック内の処理は短絡評価されるため、 <code>doSomething()</code> は評価されません。一方、 <code>someBool()</code> がfalseを返した時は <code>doSomething()</code> が評価されます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">some</span>() {
+</span></span><span style="display:flex;"><span>  someBool() <span style="color:#04a5e5;font-weight:bold">||</span> doSomething()
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">someBool</span>(): Boolean = <span style="color:#df8e1d">Random</span>.nextBoolean()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">fun</span> <span style="color:#1e66f5">doSomething</span>(): Boolean {
+</span></span><span style="display:flex;"><span>    println(<span style="color:#40a02b">&#34;do something here&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>この <code>&amp;&amp;</code> <code>||</code> の短絡評価を利用すると、 <code>someBool()</code> がtrue / falseの時にだけ特定の処理を行う、という処理を書くことができるわけですが、あまり行儀が良くないので<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>、基本的にはやめましょう。</p>
+<p>今回の例はまだわかりやすいですが、 <code>if (someCondition() || anotherCondition()) {}</code> のように、 <code>if</code> の条件式内で何らかの副作用が発生するような短絡評価の乱用は、厳に慎むべきでしょう。</p>
+<hr>
+<p>Kotlinには、 <code>and</code> 演算子と <code>or</code> 演算子が存在します。これらの演算子はそれぞれ <code>&amp;&amp;</code> 演算子と <code>||</code> 演算子と似ていますが、 <code>and</code> 演算子と <code>or</code> 演算子は短絡評価されず、完全評価されます。すなわち、演算子の左側の値がtrueだろうがfalseだろうが、右側の値も評価される、ということです。</p>
+<p>こちらはこちらで、無駄に処理が行われてしまうことにつながるため、注意が必要です。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>個人の見解です。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/null-object-pattern/">[Kotlin] nullオブジェクトパターン</a></li>
+  
+  <li><a href="/blog/where-to-place-private-methods/">privateメソッドをどこに書くか</a></li>
+  
+  <li><a href="/blog/nullable-or-non-null/">[Kotlin] Non-Nullにこだわらず、適切にNullableを使う</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

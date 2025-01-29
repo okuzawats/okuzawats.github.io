@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>GitHub ActionsでSonarCloudにカバレッジをアップロードする | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="GitHub ActionsでSonarCloudにカバレッジをアップロードする" />
+  <meta name="description" content="GitHub ActionsからSonarCloudにカバレッジをアップロードする方法です。JaCoCoを用いたAndroidのカバレッジレポートの例を書いています。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>GitHub ActionsでSonarCloudにカバレッジをアップロードする</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2023-09-18' pubdate>
+        2023-09-18
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>表記のことを行う方法をメモしておきます。</p>
+<p>サンプルとしてAndroidアプリのカバレッジレポートをJaCoCoで出力する場合を取り上げています。JaCoCoについては<a href="https://okuzawats.com/blog/configure-jacoco/">build.gradle.ktsでJaCoCoを動かす</a>などを参考にして設定済みであることを前提とします。</p>
+<h2 id="github-actionsのワークフロー">GitHub Actionsのワークフロー</h2>
+<p>結論から先に書くと、こんな感じのステップを作ります。このステップを動かすために、いろいろな準備が必要です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#8839ef">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">test</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic"># 省略</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">steps</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#9ca0b0;font-style:italic"># 省略</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">name</span>: sonarcloud
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">uses</span>: SonarSource/sonarcloud-github-action@master
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">GITHUB_TOKEN</span>: ${{ secrets.GITHUB_TOKEN }}
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">SONAR_TOKEN</span>: ${{ secrets.SONAR_TOKEN }}
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">args</span>: &gt;<span style="color:#9ca0b0">
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            -Dsonar.organization=your-organization-here
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            -Dsonar.projectKey=your-project-key-here
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            -Dsonar.coverage.jacoco.xmlReportPaths=./app/build/reports/jacoco/debugCoverage/debugCoverage.xml</span>            
+</span></span></code></pre></div><h2 id="準備">準備</h2>
+<h3 id="ci-baseの解析を有効にする">CI baseの解析を有効にする</h3>
+<p>SonarCloudは、GitHubのリポジトリと連携した後、デフォルトブランチとPull Requestを自動で解析する設定になっています。SonarCloudのカバレッジ機能を有効にするためには、この設定を無効化して、Pull Requestベースでの解析を行うように変更する必要があります。</p>
+<p>SonarCloudのプロジェクトのダッシュボードから、Administration &gt; Analysis Methodを開き、Automatic Analysisを無効化します。もし&quot;Administration&quot;が表示されない場合は権限的な問題かもしれません。</p>
+<h3 id="sonar_token">SONAR_TOKEN</h3>
+<p>GitHubのリポジトリシークレットに保存する、SonarCloudのトークンです。</p>
+<p>このトークンは、SonarCloudのダッシュボードから、My Account &gt; Securityを開き、&ldquo;Generate Tokens&quot;で作成できます。この辺りは、組織のポリシーがあればそれに従います。今回は自分個人のアカウントで試しているので、自分のアカウントでトークンを作成しました。</p>
+<h3 id="オーガニゼーションとプロジェクトキー">オーガニゼーションとプロジェクトキー</h3>
+<p>yamlの以下の部分です。これら2つは、<a href="https://github.com/SonarSource/sonarcloud-github-action">SonarSource/sonarcloud-github-action</a>で <code>with</code> を用いた構文を使う場合は必須のパラメータです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>            -Dsonar.organization=your-organization-here
+</span></span><span style="display:flex;"><span>            -Dsonar.projectKey=your-project-key-here
+</span></span></code></pre></div><p>SonarCloudのプロジェクトのダッシュボードから、Informationを開き、&ldquo;About This Project&quot;の下に表示されている&quot;Project Key&quot;と&quot;Organization Key&quot;をそれぞれ入力します。</p>
+<h3 id="カバレッジレポートのパス">カバレッジレポートのパス</h3>
+<p>yamlの以下の部分です。カバレッジレポートのパスを設定します。言語によってパラメータが異なるので、<a href="https://docs.sonarcloud.io/enriching/test-coverage/test-coverage-parameters/">Test Coverage Parameters</a>を参考に設定します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>            -Dsonar.coverage.jacoco.xmlReportPaths=./app/build/reports/jacoco/debugCoverage/debugCoverage.xml
+</span></span></code></pre></div>
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/lint-android-with-github-actions/">GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする🐝</a></li>
+  
+  <li><a href="/blog/room-or-realm-test-on-github-actions/">[Android] GitHub ActionsでRoom / Realmの自動テスト</a></li>
+  
+  <li><a href="/blog/run-yamllint-in-github-actions/">GitHub Actionsでyamlにlintをかける</a></li>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

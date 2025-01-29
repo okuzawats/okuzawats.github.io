@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] GitHub ActionsでRoom / Realmの自動テスト | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] GitHub ActionsでRoom / Realmの自動テスト" />
+  <meta name="description" content="フラー株式会社 Advent Calendar 2021の25日目の記事「GitHub ActionsでRoom / Realmの自動テスト」です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] GitHub ActionsでRoom / Realmの自動テスト</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2021-12-25' pubdate>
+        2021-12-25
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>この記事はフラー株式会社 Advent Calendar 2021の25日目の記事です。</p>
+<ul>
+<li><a href="https://qiita.com/advent-calendar/2021/fuller-inc">フラー株式会社 Advent Calendar 2021のカレンダー | Advent Calendar 2021 - Qiita</a></li>
+</ul>
+<p>24日目の記事は <code>@su8</code> さんによる「<a href="https://qiita.com/su8/items/517b5a2de22973dc4513">コンテナ遠洋航海 ~そこらへんの草でも食わせておけ プロセス分離の旅路 ~ - Qiita</a>」でした。</p>
+<h2 id="androidのローカルデータベースアクセスの自動テスト">Androidのローカルデータベースアクセスの自動テスト</h2>
+<p>2021年現在、Androidアプリ開発でローカルデータベース（SQLite）にデータを保存する場合は、Roomを使用することが多いと思います。数年前はRealmが流行っていたので、今もRealmを使用しているというプロジェクトも多いと思います。この記事では、RoomとRealmを用いたローカルデータベースアクセスの自動テストをGitHub Actionsで行う方法について書きます。</p>
+<h3 id="roomのテスト">Roomのテスト</h3>
+<p>Roomのテストは、Dao単位で行うことを想定します。Roomのインメモリデータベースを用いてテストを行います。エミュレータテストになるので、 <code>androidTest</code> にテストを書きます。</p>
+<p>本記事の例では、Contextの取得に <code>androidx.test.core.app.ApplicationProvider</code> を、テストランナーとして <code>androidx.test.ext.junit.runners.AndroidJUnit4</code> を使用します。</p>
+<ul>
+<li><a href="https://developer.android.com/reference/androidx/test/core/app/package-summary">androidx.test.core.app | Android Developers</a></li>
+<li><a href="https://developer.android.com/reference/androidx/test/ext/junit/runners/AndroidJUnit4">AndroidJUnit4 | Android Developers</a></li>
+</ul>
+<p><code>setup</code> と <code>tearDown</code> までは以下のように書けます。ここで、AwesomeDaoはRoomのDao、DatabaseはRoomDatabaseのサブクラスです。 <code>setup</code> でインメモリデータベースをビルドした後、テストのtargetとなるDaoを作ります。 <code>tearDown</code> では、データベースをcloseしています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@RunWith</span>(AndroidJUnit4<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">AwesomeDaoTest</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">target</span>: AwesomeDao
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">database</span>: Database
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Before</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">setup</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">context</span> = <span style="color:#df8e1d">ApplicationProvider</span>.getApplicationContext&lt;Context&gt;()
+</span></span><span style="display:flex;"><span>    database = Room
+</span></span><span style="display:flex;"><span>      .inMemoryDatabaseBuilder(context, Database<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>.java)
+</span></span><span style="display:flex;"><span>      .setTransactionExecutor(StandardTestDispatcher().asExecutor())
+</span></span><span style="display:flex;"><span>      .setQueryExecutor(StandardTestDispatcher().asExecutor())
+</span></span><span style="display:flex;"><span>      .build()
+</span></span><span style="display:flex;"><span>    target = database.awesomeDao()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@After</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">tearDown</span>() {
+</span></span><span style="display:flex;"><span>    database.close()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>ここまでの準備ができたらあとはテストケースを書けば良いのですが、特にどうということもないので省略します。テストは <code>gradlew connectedAndroidTest</code> などのコマンドから実行することができます。実際には、Build Variantsを適切に設定してください。</p>
+<h3 id="realmのテスト">Realmのテスト</h3>
+<p>Roomと同様に、RealmのテストもRealmの提供するインメモリデータベースを用いてテストを行います。Realmのインメモリデータベースのインスタンスは、以下のように作成することができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#df8e1d">RealmConfiguration</span>.Builder()
+</span></span><span style="display:flex;"><span>  .inMemory()
+</span></span><span style="display:flex;"><span>  .name(<span style="color:#40a02b">&#34;your_name_here&#34;</span>)
+</span></span><span style="display:flex;"><span>  .build()
+</span></span></code></pre></div><p>データベースアクセスを行うクラスにこのRealmのインスタンスをDIできるようにしておけば、Realmを用いたデータベースアクセスのテストを書くことができます。やっていることはRoomのテストと同様です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">AwesomeDataSourceTest</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">target</span>: AwesomeDataSource
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">realm</span>: Realm? = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Before</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">setup</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">config</span> = <span style="color:#df8e1d">RealmConfiguration</span>.Builder()
+</span></span><span style="display:flex;"><span>                  .inMemory()
+</span></span><span style="display:flex;"><span>                  .name(<span style="color:#40a02b">&#34;your_name_here&#34;</span>)
+</span></span><span style="display:flex;"><span>                  .build()
+</span></span><span style="display:flex;"><span>    realm = <span style="color:#df8e1d">Realm</span>.getInstance(config)
+</span></span><span style="display:flex;"><span>    target = AwesomeDataSource(requireNotNull(realm))
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@After</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">tearDown</span>() {
+</span></span><span style="display:flex;"><span>    realm<span style="color:#04a5e5;font-weight:bold">?.</span>close()
+</span></span><span style="display:flex;"><span>    realm = <span style="color:#8839ef">null</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="github-actions">GitHub Actions</h3>
+<p>ここまでできれば、あとはGitHub Actionsでトリガーが引かれた時にテストを実行するだけです。Instrumented Testにする必要がありますが、GitHub Actions上でAndroidのエミュレータをセットアップするための素晴らしいアクション <code>malinskiy/action-android</code> が存在しますので、こちらを使えば苦労はいりません。</p>
+<ul>
+<li><a href="https://github.com/Malinskiy/action-android">Malinskiy/action-android: Collection of Android-related GitHub Actions</a></li>
+</ul>
+<p>なお、エミュレータテストのために、OSとしてMacを選択する必要があることに注意してください（Ubuntuを使用する場合に比べて10倍の速度でお金が溶けます）。</p>
+<p>※ 2024年3月29日追記：2024年1月22日にUbuntu対応が入ったので、macOSのインスタンスを使わなくても動くようになりました🎉 =&gt; <a href="https://github.com/Malinskiy/action-android/releases/tag/0.1.6">Release 0.1.6 · Malinskiy/action-android</a></p>
+<p>以下は簡単なGitHub Actionsのワークフローのサンプルです。参考のため、Build Variantsを <code>DevDebug</code> に設定しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#8839ef">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">test</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">runs-on</span>: macos-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">uses</span>: actions/checkout@v2
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">name</span>: Set Up JDK 11
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">uses</span>: actions/setup-java@v2
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">distribution</span>: <span style="color:#40a02b">&#39;zulu&#39;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">java-version</span>: <span style="color:#40a02b">&#39;11&#39;</span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">uses</span>: actions/cache@v2
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">path</span>: |<span style="color:#9ca0b0">
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            ~/.gradle/caches
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            ~/.gradle/wrapper</span>            
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">key</span>: ${{ runner.os }}-gradle-${{ hashFiles(&#39;**/*.gradle*&#39;, &#39;**/gradle-wrapper.properties&#39;) }}
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">restore-keys</span>: |<span style="color:#9ca0b0">
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0">            ${{ runner.os }}-gradle-</span>            
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">name</span>: Install Android SDK
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">uses</span>: malinskiy/action-android/install-sdk@release/0.1.2
+</span></span><span style="display:flex;"><span>      - <span style="color:#8839ef">name</span>: Instrumented Test
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">uses</span>: malinskiy/action-android/emulator-run-cmd@release/0.1.2
+</span></span><span style="display:flex;"><span>        <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">cmd</span>: ./gradlew connectedDevDebugAndroidTest
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">api</span>: <span style="color:#fe640b">28</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">tag</span>: default
+</span></span><span style="display:flex;"><span>          <span style="color:#8839ef">abi</span>: x86
+</span></span></code></pre></div><p>以上で、Room / Realmの自動テストをGitHub Actions上で実行することができました。</p>
+<h2 id="まとめ">まとめ</h2>
+<p>2019年、2020年に続き、2021年もフラー Advent Calendarの最終日を務めさせていただきました。来年も最終日を狙って参ります。よろしくお願いいたします。</p>
+<ul>
+<li><a href="https://adventar.org/calendars/4155">フラー Advent Calendar 2019 - Adventar</a></li>
+<li><a href="https://adventar.org/calendars/5034">フラー Advent Calendar 2020 - Adventar</a></li>
+</ul>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+  <li><a href="/blog/lint-android-with-github-actions/">GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする🐝</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

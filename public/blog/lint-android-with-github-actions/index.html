@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする🐝 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする🐝" />
+  <meta name="description" content="GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする方法のメモです。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>GitHub ActionsでktlintとAndroid Lintを並列実行して、DangerでPRにまとめてコメントする🐝</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2023-06-17' pubdate>
+        2023-06-17
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>Androidアプリ開発での静的解析として広く使われているktlintとAndroid LintをGitHub Actions上で実行して、Dangerを使ってPRにコメントして欲しい、ということは良くあると思います。ktlintとAndroid Lintを直列に実行するのは簡単ですが、並列に実行できた方がCI待ちの時間が減って嬉しいですよね。そこまで難しくないのでやっていきます。</p>
+<ul>
+<li><a href="https://github.com/pinterest/ktlint">pinterest/ktlint: An anti-bikeshedding Kotlin linter with built-in formatter</a></li>
+<li><a href="https://developer.android.com/studio/write/lint">Improve your code with lint checks | Android Studio | Android Developers</a></li>
+<li><a href="https://danger.systems/ruby/">Danger - Stop Saying &ldquo;You Forgot To…&rdquo; in Code Review</a></li>
+</ul>
+<h2 id="jobsjob_idneeds-構文"><code>jobs.&lt;job_id&gt;.needs</code> 構文</h2>
+<p>GitHub Actionsでは、ひとつのワークフロー（YAMLファイル単位で作成される）に複数のジョブを定義できます。ひとつのワークフローにktlint、Android Lint、Dangerのジョブをそれぞれ定義すれば良さそうですが、Dangerの実行はktlintとAndroid Lintの両方の実行完了を待たないといけません。</p>
+<p>ここで使えるのが、 <code>jobs.&lt;job_id&gt;.needs</code> 構文です。</p>
+<ul>
+<li><a href="https://docs.github.com/ja/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idneeds">GitHub Actions のワークフロー構文 - GitHub Docs</a></li>
+</ul>
+<p>この構文を使って、</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#8839ef">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">ktlint</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic"># do ktlint</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">androidLint</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic"># do android lint</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">danger</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">needs</span>:
+</span></span><span style="display:flex;"><span>      - ktlint
+</span></span><span style="display:flex;"><span>      - androidLint
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic"># do danger</span>
+</span></span></code></pre></div><p>というように、ktlintのジョブ、Android Lintのジョブ、Dangerのジョブをそれぞれ定義しておき、Dangerのジョブの依存ジョブとしてktlintおよびAndroid Lintのジョブを指定すれば良いです。</p>
+<h2 id="gemfile">Gemfile</h2>
+<p>Gemfileに必要なgemを追加しておきます。今回は、PRにktlintの指摘をコメントするために <code>danger-checkstyle_format</code> 、Android Lintの指摘をコメントするために <code>danger-android_lint</code> を使用します。</p>
+<pre tabindex="0"><code>gem &#39;danger&#39;
+gem &#39;danger-checkstyle_format&#39;
+gem &#39;danger-android_lint&#39;
+</code></pre><ul>
+<li><a href="https://github.com/noboru-i/danger-checkstyle_format">noboru-i/danger-checkstyle_format: Danger plugin for checkstyle formatted xml file.</a></li>
+<li><a href="https://github.com/loadsmart/danger-android_lint">loadsmart/danger-android_lint: A Danger plugin for Android Lint</a></li>
+</ul>
+<h2 id="dangerfile">Dangerfile</h2>
+<p>Dangerfileでは前述の <code>danger-checkstyle_format</code> と <code>danger-android_lint</code> の設定を書いておきます。Android LintのGradleタスクは先にGitHub Actionsのジョブとして実行しておくので、 <code>skip_gradle_task</code> にtrueを設定しておきます。また、ファイルのパスはプロジェクトによって異なるパスとなっている可能性があるので、適宜修正します。</p>
+<pre tabindex="0"><code>checkstyle_format.base_path = Dir.pwd
+checkstyle_format.report &#39;app/build/ktlint.xml&#39;
+
+android_lint.report_file = &#39;app/build/reports/lint-results-debug.xml&#39;
+android_lint.skip_gradle_task = true
+android_lint.lint
+</code></pre><h2 id="upload-artifactdownload-artifact">upload-artifact、download-artifact</h2>
+<p>GitHub Actionsのジョブ間では、それぞれのジョブ内で生成されたファイルは共有されません。そのため、ktlintとAndroid Lintの出力したレポートファイルを何らかの方法でDangerのジョブに渡す必要があります。</p>
+<p>この問題を解決するための方法はいくつかあると思いますが、今回はupload-artifactアクション、およびdownload-artifactアクションを使用します。</p>
+<ul>
+<li><a href="https://github.com/actions/upload-artifact">actions/upload-artifact</a></li>
+<li><a href="https://github.com/actions/download-artifact">actions/download-artifact</a></li>
+</ul>
+<p>ktlintのジョブとAndroid Lintのジョブの最後に、upload-artifactアクションを用いて、それぞれのレポートファイルをアップロードしておきます。こうしておくと、あとからレポートファイルを参照することもできるというメリットもあります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#8839ef">uses</span>: actions/upload-artifact@v3
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">name</span>: ktlint-output
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">path</span>: <span style="color:#40a02b">&#39;app/build/ktlint.xml&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#8839ef">uses</span>: actions/upload-artifact@v3
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">name</span>: androidlint-output
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">path</span>: <span style="color:#40a02b">&#39;app/build/reports/lint-results-debug.xml&#39;</span>
+</span></span></code></pre></div><p>Dangerのジョブでは、Dangerの実行前に、download-artifactアクションを用いてこれらのファイルをダウンロードしておきます。これで、Dangerのジョブの中でそれぞれのファイルを使用可能な状態となります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>- <span style="color:#8839ef">uses</span>: actions/download-artifact@v3
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">name</span>: ktlint-output
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">path</span>: <span style="color:#40a02b">&#39;app/build/&#39;</span>
+</span></span><span style="display:flex;"><span>- <span style="color:#8839ef">uses</span>: actions/download-artifact@v3
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">with</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">name</span>: androidlint-output
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">path</span>: <span style="color:#40a02b">&#39;app/build/reports/&#39;</span>
+</span></span></code></pre></div><h2 id="github-actionsのワークフローを実行">GitHub Actionsのワークフローを実行</h2>
+<p>ここまで来たら、GitHub Actionsのワークフローを実行できます。試しに実行してみると、以下のようにktlintとAndroid Lintの警告・エラーがGitHubのPRにコメントされました。</p>
+<figure class="center"><img src="/images/lint-action.webp"><figcaption>
+      <h4>Fig-1 GitHubのPRへのコメント</h4>
+    </figcaption>
+</figure>
+
+<p>PRへのコメントについてはdanger-actionを使用しました。</p>
+<ul>
+<li><a href="https://github.com/MeilCli/danger-action">MeilCli/danger-action: Execute danger action for GitHub Actions.</a></li>
+</ul>
+<p>実際のYAMLファイルはGitHub上で参照可能ですので、見てみたい方は以下のリンクからどうぞ。</p>
+<ul>
+<li><a href="https://github.com/okuzawats/yumemi-android-engineer-codecheck/blob/main/.github/workflows/danger.yml">yumemi-android-engineer-codecheck/.github/workflows/danger.yml at main · okuzawats/yumemi-android-engineer-codecheck · GitHub</a></li>
+</ul>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/room-or-realm-test-on-github-actions/">[Android] GitHub ActionsでRoom / Realmの自動テスト</a></li>
+  
+  <li><a href="/blog/run-yamllint-in-github-actions/">GitHub Actionsでyamlにlintをかける</a></li>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] Clean Architecture の理論と実装 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] Clean Architecture の理論と実装" />
+  <meta name="description" content="Androidアプリ開発でのClean Architectureの理論と実装に関するアイデアを示します。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] Clean Architecture の理論と実装</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2022-11-06' pubdate>
+        2022-11-06
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>追記（2023年1月24日）：本記事の内容に加筆し、書籍としてまとめたものをBOOTHにて頒布しております。さらに詳しい内容については、書籍を参照してください。</p>
+<ul>
+<li><a href="https://syntaxsugar.booth.pm/items/4492472">Android クリーンアーキテクチャ ヒッチハイク・ガイド - 糖衣構文 - BOOTH</a></li>
+</ul>
+<hr>
+<p>Androidアプリにおいてクリーンアーキテクチャを採用する場合の基本的な実装アイデアをこの記事にまとめます。あくまで自分の個人的なアイデアですので、他にもいろいろな異なる考え方が存在する可能性があります。その辺を割り引いて、ひとつのアイデアとして受け取っていただけますと幸いです。予防線を張ったところで始めていきます。</p>
+<p>サンプルコードはGitHubの以下のリポジトリに置いてあります。ので、プロジェクト全体をローカル環境で参照したい場合はリポジトリをForkしてください。また、本記事執筆時点でのコードにはタグが切ってありますので、記事に対するソースコードを参照したい場合は、タグのコミットをチェックアウトしてください。</p>
+<ul>
+<li><a href="https://github.com/okuzawats/android-clean-architecture">okuzawats/android-clean-architecture: Android Clean Architecture Sample App (WIP🤪)</a></li>
+<li><a href="https://github.com/okuzawats/android-clean-architecture/releases/tag/v1">Release verion.1 · okuzawats/android-clean-architecture</a></li>
+</ul>
+<p>本記事では、Androidアプリ開発に関する基本的な知識と、依存性注入（DI）、依存関係逆転の原則を理解していることを前提条件とします。DI及び依存関係逆転の原則については本ブログ内にも記事がありますので、必要に応じて参考にしていただければと思います。</p>
+<ul>
+<li><a href="https://okuzawats.com/blog/dependency-injection/">何故、依存性注入（DI）するのか</a></li>
+<li><a href="https://okuzawats.com/blog/dip/">依存関係逆転の原則</a></li>
+</ul>
+<h2 id="クリーンアーキテクチャの図">クリーンアーキテクチャの図</h2>
+<p>まずは、書籍クリーンアーキテクチャ (Robert (2018), p.200) の有名な図と、Androidのアプリアーキテクチャガイド (<a href="https://developer.android.com/topic/architecture">https://developer.android.com/topic/architecture</a>) を参考に、目指すアプリのアーキテクチャの図を描きます。それが以下の図です。</p>
+<figure class="center"><img src="/images/clean-architecture.webp">
+</figure>
+
+<h3 id="domain">Domain</h3>
+<p>この図の中心には、Domainが存在します。本記事におけるDomainでは、ビジネスルールをUseCaseとして定義します。書籍クリーンアーキテクチャでは、UseCaseの中心にさらにEntityが存在しますが、本記事ではEntityは登場しません。</p>
+<p>UseCaseの実装においての注意点としては、ひとつのUseCaseは単一の機能のみを持つ、ということがあります。すなわち、ひとつのUseCaseに対して、ひとつのメソッドのみが定義されます。この方針での実装はいろいろなやり方が考えられると思いますが、本記事では、以下の記事で紹介した、<code>operator fun invoke</code> を実装する方針で実装します。</p>
+<ul>
+<li><a href="https://okuzawats.com/blog/implement-usecase-in-android/">[Android] UseCaseの実装</a></li>
+</ul>
+<p>この方針で実装した場合、UseCaseのインスタンスに対して <code>awesomeUseCase()</code> というようにinvokeを呼び出し、UseCaseの処理を実行することができます。</p>
+<h3 id="presentation">Presentation</h3>
+<p>図のDomainの上に目を向けると、Presentationが存在します。PresentationはUIに対するInterface Adapterの役割を持ち、ViewModelとして実装しています。PresentationはAndroidフレームワークへの依存を持たないように実装すべきですが、実装都合で、Android Architecture ComponentsのViewModelを用います。</p>
+<p>Android Architecture ComponentsのViewModelはAndroidの複雑なライフサイクルをいい感じに扱うために非常に便利ですが、すなわちフレームワーク非依存と言いにくくなってしまいます。まあ便利だから使うんですが&hellip;。</p>
+<p>以下、本記事で特に断りなくViewModelと書く時は、Android Architecture ComponentsのViewModelではなく、Presentationにおける（MVVM的な意味での）ViewModelを指します。</p>
+<h3 id="ui">UI</h3>
+<p>図のPresentationのさらに上に目を向けると、UIが存在します。AndroidにおけるUIは、Activity、Fragment、Composeといったものです。UIは、Androidのフレームワークに依存します。</p>
+<h3 id="data">Data</h3>
+<p>今度は、図のDomainの下に目を向けます。ここには、Dataが存在します。Dataは主にRepositoryとして実装します。Repositoryは、RESTful API、ローカルデータベース、SharedPreferenceなどのデータソースに対するInterface Adapterの役割を持ち、データアクセスを抽象化します。</p>
+<h3 id="data-source">Data Source</h3>
+<p>さらにDataの下に目を向けると、DataSourceが存在します。DataSourceには、RESTful API、ローカルデータベース、SharedPreference等、データに直接アクセスするコードが書かれます。</p>
+<h2 id="制御の方向と依存の方向">制御の方向と依存の方向</h2>
+<p>図中の青い色の矢印と赤い色の矢印に注目します。これは制御の方向と依存の方向を表しています。</p>
+<p>例えば、UIとPresentationについて考えます。具体的な状況としては、MVVMにおけるViewとしてのActivityとViewModelです。</p>
+<figure class="center"><img src="/images/view-viewmodel.webp">
+</figure>
+
+<p>典型的なMVVMの実装では、Activityがユーザーアクションを受け、ViewModelにアクションを伝えます。ViewModelではアクションを受け取り、何らかの処理を行ったのち、ViewであるActivityに状態更新通知などを送ることになるでしょう。この更新通知は主としてObserverパターンを用いて実装されるため、ViewModelはそのサブスクライバであるViewへの依存を持たない、ということになります。すなわち、依存の方向は、UI (View) → Presentation (ViewModel) となります。ViewがViewModel側に定義されたメソッドを呼び出しますので、制御の流れも同じくUI (View) → Presentation (ViewModel)です。</p>
+<p>一方、DomainとDataでは、制御の方向と依存の方向が逆を向いています。つまり、DomainにおけるUseCaseはDataにおけるRepositoryのメソッドを呼び出しますが、RepositoryがUseCaseに依存する、という依存関係の方向になっているということです。どういうことでしょうか？</p>
+<p>これはつまり、UseCaseとRepositoryに依存関係逆転の原則を適用し、RepositoryからUseCaseに依存の方向が向くようにしている、ということです（「<a href="https://okuzawats.com/blog/dip/">依存関係逆転の原則</a>」を参照）。</p>
+<p>具体的には、Domain側にRepositoryのinterfaceを定義し、Data側ではそのinterfaceを実装します。こうすることで、依存の向きはDataからDomainに向き、制御の方向と依存の方向を逆にすることができます。</p>
+<figure class="center"><img src="/images/domain-data.webp">
+</figure>
+
+<p>DataとDataSouceについても、DomainとDataと同様に依存性を逆転させて、DataSourceからDataへ依存の方向が向くようにします。</p>
+<h2 id="実装">実装</h2>
+<p>ここからは具体的なコードを見ていきます。サンプルアプリとして、犬の画像をランダムで表示するアプリを考えます。犬の画像をランダムで表示するアプリのドメインとは？と疑問に思うかもしれませんが、あくまで実装のサンプルですのでご容赦ください。</p>
+<p>犬の画像を取得するため、Dog APIをお借りします。</p>
+<ul>
+<li><a href="https://dog.ceo/dog-api/">Dog API</a></li>
+</ul>
+<h3 id="domainの実装">Domainの実装</h3>
+<p>最初にDomainの実装をしていきます。Domainは、（冒頭の図における）円の中心に位置し、他のどこにも依存しませんでした。ということは、Domainは独立して実装することが可能ということを意味します。</p>
+<p>まずはDomainのモジュールを作成します。Android Studioから、Android Libraryとして <code>:domain</code> を作成します。また、アプリケーションのモジュールは <code>:domain</code> モジュールに依存する必要があるため、app/build.gradle.ktsに <code>:domain</code> モジュールを追加します。以降、特に断らずに、app/build.gradle.ktsに全てのモジュールへの依存を追加していきます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:domain&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>さて、UseCaseのinterfaceを定義します。前述のとおり、UseCaseでは <code>operater fun invoke</code> を実装します。UseCase#invokeがどのような型を返すべきかは一考の余地がありますが&hellip;ここではEither型のFlowを返すことにしました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.domain.getrandomdogimage</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> * A use case of getting a random dog image
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">GetRandomDogImageUseCase</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">operator</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">invoke</span>(): Flow&lt;Either&lt;DogImageFetchingException, DogImage&gt;&gt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>前述のとおり、DomainではRepositoryのinterfaceを定義します。ここでは、Either型を返す <code>suspend fun</code> を定義します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.domain.getrandomdogimage.repository</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> * Repository for dog images
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">DogImageRepository</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getRandom</span>(): Either&lt;DogImageFetchingException, DogImage&gt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>UseCaseを実装します。UseCaseの実装クラスでは、Dagger HiltでのDIを前提として（DIについては後述します）、RepositoryをDIします。ここでは動作確認のために <code>delay</code> を入れていますが、あまり気にしないでください :)</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.domain.getrandomdogimage.impl</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> * Implementation of [GetRandomDogImageUseCase]
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">GetRandomDogImageUseCaseImpl</span> <span style="color:#1e66f5;font-weight:bold">@Inject</span> <span style="color:#8839ef">constructor</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">dogImageRepository</span>: DogImageRepository,
+</span></span><span style="display:flex;"><span>) : GetRandomDogImageUseCase {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">invoke</span>(): Flow&lt;Either&lt;DogImageFetchingException, DogImage&gt;&gt; =
+</span></span><span style="display:flex;"><span>    flow {
+</span></span><span style="display:flex;"><span>      <span style="color:#9ca0b0;font-style:italic">// TODO remove this delay
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>      delay(<span style="color:#fe640b">1500L</span>)
+</span></span><span style="display:flex;"><span>      emit(dogImageRepository.getRandom())
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="dataの実装">Dataの実装</h3>
+<p>dataモジュールを作成します。dataモジュールはdomainモジュールに依存するので、<code>:data</code> のbuild.gradle.ktsに <code>:domain</code> への依存を追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:domain&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>domainモジュールに定義したRepositoryのinterfaceを実装します。このクラスでは、RemoteDataSource、及びDataToDomainMapperをDI（コンストラクタインジェクション）しています。RemoteDataSourceはinterfaceで、dataモジュール内で定義します（後述）。RemoteDataSourceをdataモジュールで定義することで、依存の向きをdataSourceモジュールからdataモジュールに向けています。DataToDomainMapperは、dataモジュールで定義するModelをdomainモジュールで定義するModelに変換します（説明は省略）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.data.repository.dogimage</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> * Implementation of [DogImageRepository]
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">DogImageRepositoryImpl</span> <span style="color:#1e66f5;font-weight:bold">@Inject</span> <span style="color:#8839ef">constructor</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">remoteDataSource</span>: RemoteDataSource,
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">dataToDomainMapper</span>: DataToDomainMapper,
+</span></span><span style="display:flex;"><span>) : DogImageRepository {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getRandom</span>(): Either&lt;DogImageFetchingException, DogImage&gt; =
+</span></span><span style="display:flex;"><span>    dataToDomainMapper.toDomain(
+</span></span><span style="display:flex;"><span>      dogImage = remoteDataSource.getRandomDogImage(),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>上述のRemoteDataSource interfaceを定義します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.data.datasource</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">import</span> <span style="color:#fe640b">arrow.core.Either</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> * Data source over network
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"> */</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">RemoteDataSource</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">   * Get random dog image
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">   */</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getRandomDogImage</span>(): Either&lt;Throwable, String&gt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="datasourceの実装">DataSourceの実装</h3>
+<p>DataSourceについては、dataモジュールの中に <code>:remote</code> モジュールを追加します。今回はRESTful APIであるDog APIをデータソースとして用いるため、モジュールの名前をremoteとしています。ローカルデータベースやSharedPreferenceに対するデータソースは、例えば <code>:local</code> などの名前になるでしょう。</p>
+<p>remoteモジュールは、dataモジュールに依存します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:data&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>dataモジュールで定義したRemoteDataSource interfaceを実装します。コンストラクタ引数として受け取っているApiClientは、Retrofitを用いてRESTful APIアクセスを行うためのinterfaceです。RemoteDataSourceImplでは、RetrofitのResponseクラスの型としてRESTful APIからデータを受け取ります。こうしたAPI用のModelへの依存を外に漏らさないように、依存先のdataモジュールに定義されているModelの型に変換します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.data.remote</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">RemoteDataSourceImpl</span> <span style="color:#1e66f5;font-weight:bold">@Inject</span> <span style="color:#8839ef">constructor</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">apiClient</span>: ApiClient,
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">dataSourceToDataMapper</span>: DataSourceToDataMapper,
+</span></span><span style="display:flex;"><span>) : RemoteDataSource {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// TODO: define error types
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getRandomDogImage</span>(): Either&lt;Throwable, String&gt; =
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">try</span> {
+</span></span><span style="display:flex;"><span>      dataSourceToDataMapper.toData(
+</span></span><span style="display:flex;"><span>        apiClient.getRandomImage()
+</span></span><span style="display:flex;"><span>      )
+</span></span><span style="display:flex;"><span>    } <span style="color:#8839ef">catch</span> (e: IOException) {
+</span></span><span style="display:flex;"><span>      Throwable(<span style="color:#40a02b">&#34;response not received&#34;</span>).left()
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="presentationの実装">Presentationの実装</h3>
+<p>次に、Presentationを実装します。<code>:presentation</code> モジュールを作成し、domainモジュールへの依存を追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:domain&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>そして謝らなくてはならないことがあります。ごめんなさい。「クリーンアーキテクチャの図」の節で、「実装都合で、Android Architecture ComponentsのViewModelを用います」と書いていましたが、サンプルコードではUniFlowというライブラリの提供するAndroidDataFlowを各ViewModelの親クラスとして用いていました。まあ、AndroidDataFlowはAndroid Architecture ComponentsのViewModelを継承しているので、嘘はついていないかもしれません。</p>
+<ul>
+<li><a href="https://github.com/uniflow-kt/uniflow-kt">uniflow-kt/uniflow-kt: Uniflow 🦄 - Simple Unidirectional Data Flow for Android &amp; Kotlin, using Kotlin coroutines and open to functional programming</a></li>
+</ul>
+<p>とにかく、ViewModelは以下のように実装しました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.presentation.main</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@HiltViewModel</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">MainViewModel</span> <span style="color:#1e66f5;font-weight:bold">@Inject</span> <span style="color:#8839ef">constructor</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">getRandomDogImageUseCase</span>: GetRandomDogImageUseCase,
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">domainToPresentationMapper</span>: DomainToPresentationMapper,
+</span></span><span style="display:flex;"><span>) : AndroidDataFlow(defaultState = <span style="color:#df8e1d">MainViewModelState</span>.Initial) {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onEntered</span>() {
+</span></span><span style="display:flex;"><span>    action {
+</span></span><span style="display:flex;"><span>      setState(<span style="color:#df8e1d">MainViewModelState</span>.Loading)
+</span></span><span style="display:flex;"><span>      getRandomDogImageUseCase()
+</span></span><span style="display:flex;"><span>        .map(domainToPresentationMapper<span style="color:#04a5e5;font-weight:bold">::</span>toPresentation)
+</span></span><span style="display:flex;"><span>        .map(MainViewModelState<span style="color:#04a5e5;font-weight:bold">::</span>from)
+</span></span><span style="display:flex;"><span>        .onEach(<span style="color:#04a5e5;font-weight:bold">::</span>setState)
+</span></span><span style="display:flex;"><span>        .launchIn(viewModelScope)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>UniFlowの機能を使っているためわかりにくいと思いますが、</p>
+<ul>
+<li><code>onEntered</code> が呼び出された時、
+<ol>
+<li>ViewModelStateをLoadingに設定する</li>
+<li>UseCaseをinvokeし、データを受け取ったらそのデータに応じたViewModelStateを設定する</li>
+</ol>
+</li>
+</ul>
+<p>というだけのコードです。</p>
+<p>ポイントとしては、ViewModelがUseCaseをコンストラクタ引数として受け取り（コンストラクタインジェクション）、アクションを受け取った時にUseCaseの処理を実行している点です。これは、依存と制御の方向がPresentationからDomainに向いているということに他なりません。</p>
+<h3 id="uiの実装">UIの実装</h3>
+<p>最後に、<code>:ui</code> モジュールを作成し、<code>:presentation</code> モジュールへの依存を追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:presentation&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>View (Activity) の実装は以下のように行いました。ViewModelの公開するViewModelStateを購読した上でViewModelStateをUiStateに変換し、変更通知を受け取った時に画面の更新を行っています（以下のコードだけを読んでも良くわからないと思いますので、ソースコードを読んでいただければと思います）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.ui.main</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@AndroidEntryPoint</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">MainActivity</span> : ComponentActivity() {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Inject</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">internal</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">presentationToUiMapper</span>: PresentationToUiMapper
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Inject</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">internal</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">uiStateRenderer</span>: UiStateRenderer
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">viewModel</span>: MainViewModel <span style="color:#8839ef">by</span> viewModels()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onCreate</span>(savedInstanceState: Bundle?) {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">super</span>.onCreate(savedInstanceState)
+</span></span><span style="display:flex;"><span>    setContent {
+</span></span><span style="display:flex;"><span>      CleanArchitectureTheme {
+</span></span><span style="display:flex;"><span>        Surface(
+</span></span><span style="display:flex;"><span>          modifier = <span style="color:#df8e1d">Modifier</span>.fillMaxSize(),
+</span></span><span style="display:flex;"><span>          color = <span style="color:#df8e1d">MaterialTheme</span>.colors.background
+</span></span><span style="display:flex;"><span>        ) {
+</span></span><span style="display:flex;"><span>          viewModel.states
+</span></span><span style="display:flex;"><span>            .map(presentationToUiMapper<span style="color:#04a5e5;font-weight:bold">::</span>toUi)
+</span></span><span style="display:flex;"><span>            .observeAsState()
+</span></span><span style="display:flex;"><span>            .let { uiStateRenderer.RenderAsComposable(<span style="color:#8839ef">it</span>) }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">onResume</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">super</span>.onResume()
+</span></span><span style="display:flex;"><span>    viewModel.onEntered()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="darty-main">Darty Main</h3>
+<p>冒頭の図だけ見れば、以上で実装が終わりです。しかしながら、実際にはもうひとつだけ必要なモジュールが存在します。Robert C. Martinの言うところの、「Dirty Main」です。Dirty Mainの役割を担うモジュールは、Androidのプロジェクト新規作成時に自動的に作成される <code>:app</code> モジュールがピッタリでしょう。</p>
+<p>このappモジュールの役割は、これまで登場した個々のモジュールを統合し、ひとつのアプリケーションとして成立させることです。サンプルプロジェクトでは、DIのためのコードをこのモジュール内に置いています。サンプルプロジェクトには存在しませんが、もし画面遷移を実装する場合はこのモジュールが適当であると思います。</p>
+<p>既に述べたように、appモジュールは自身以外の全てのモジュールへの依存を持っている必要があります。個々のモジュールを統合してDIの依存解決を行う、等の役割を持つためです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:ui&#34;</span>))
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:presentation&#34;</span>))
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:domain&#34;</span>))
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:data&#34;</span>))
+</span></span><span style="display:flex;"><span>  implementation(project(<span style="color:#40a02b">&#34;:data:remote&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>appモジュールでは、ApplicationクラスやDIのためのコードが存在します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@HiltAndroidApp</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">App</span> : Application()
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">package</span> <span style="color:#fe640b">com.okuzawats.cleanarchitecture.di</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5">
+</span></span></span><span style="display:flex;"><span><span style="color:#1e66f5">[imports]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@Module</span>
+</span></span><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@InstallIn</span>(ViewModelComponent<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>)
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">UseCaseModule</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Provides</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">provideGetRandomDogImageUseCase</span>(
+</span></span><span style="display:flex;"><span>    impl: GetRandomDogImageUseCaseImpl,
+</span></span><span style="display:flex;"><span>  ): GetRandomDogImageUseCase = impl
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>ここまでで、クリーンアーキテクチャを用いたサンプルプロジェクトが完成しました。</p>
+<h2 id="参考文献">参考文献</h2>
+<ol>
+<li>Robert C. Martin, 角征典(訳), 高木正弘(訳), (2018), Clean Architecture 達人に学ぶソフトウェアの構造と設計, アスキードワンゴ</li>
+<li>Eran Boudjnah, (2022), Clean Architecture for Android, BPB Online</li>
+<li>Alexandru Dumbravan, (2022), Clean Android Architecture, Packt Publishing Ltd.</li>
+<li>Android Developers, Guide to app architecture, retrieved form <a href="https://developer.android.com/topic/architecture">https://developer.android.com/topic/architecture</a> (Last Access: 2022/11/5)</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/eventbus/">[Android] EventBusの思い出🚌</a></li>
+  
+  <li><a href="/blog/advanced-android-app-architecture/">「Advanced Android App Architecture」を読みました📚</a></li>
+  
+  <li><a href="/blog/implement-usecase-in-android/">[Android] UseCaseの実装</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>「ソフトウェアアーキテクチャの基礎」をアーキテクトのキャリアガイドとして読む | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="「ソフトウェアアーキテクチャの基礎」をアーキテクトのキャリアガイドとして読む" />
+  <meta name="description" content="「ソフトウェアアーキテクチャの基礎 エンジニアリングに基づく体系的アプローチ」をアーキテクトのキャリアガイドとして読みます。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>「ソフトウェアアーキテクチャの基礎」をアーキテクトのキャリアガイドとして読む</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-01-08' pubdate>
+        2024-01-08
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>「<strong>ソフトウェアアーキテクチャの基礎 エンジニアリングに基づく体系的アプローチ</strong>」 (Mark, Neal (2022)) は、タイトルのとおり、ソフトウェアアーキテクチャの基礎を解説したものです。アーキテクチャは一概に「こうすれば良い」と言えるものではありませんが、どのようにアプローチすれば良いアーキテクチャを導き出せるのか？ということを解説した書籍です。特定のアーキテクチャについて解説するものではありません。</p>
+<p>本書では、良いアーキテクチャを導く役割を持つ<strong>アーキテクト</strong>というロールについても解説されています。アーキテクチャについて一般化された定義がないため、アーキテクトについても一般化された定義はありません。その上で、本書では「<strong>良いアーキテクトとは何であって何でないのか？</strong>」ということが示されています。アーキテクトロールは、最近では<a href="https://okuzawats.com/blog/software-engineer-career-path/">ソフトウェアエンジニアのキャリアパス</a>における「スタッフエンジニア」のアーキタイプのひとつに数えられることもあります。</p>
+<p><a href="https://okuzawats.com/blog/joined-chatwork/">働くをもっと楽しくするために、Chatwork株式会社にジョインしました🚀</a>で書いたように、自分はモバイルアプリケーションアーキテクトとして働き始め、既に1年が過ぎました。もっと良いアーキテクトになれるよう、本書をアーキテクトのキャリアガイドとして改めて読み直してみました。</p>
+<h2 id="アーキテクトは技術の深さよりも技術の広さが求められる">アーキテクトは技術の深さよりも、技術の広さが求められる</h2>
+<p>アーキテクトには、技術的な専門性の深さよりも幅が求められます。これは、さまざまなソリューションを理解して、決定を行う必要があるためです。</p>
+<p>アーキテクトロールに就いた後は、専門性を犠牲にしても、技術的な幅を広げることに時間を使うべきである、ということが本書では指摘されています。それまで専門性を磨くことに時間を費やしていたエンジニアは、技術的な幅を広げること時間を費やすことに時間を費やすようにマインドを変えていかなければなりません。</p>
+<p>一方で、技術的な深さを維持するために、現場でコードを書き続ける必要性も指摘されています。これは簡単なことではありませんが、いくつかのポイントがあると解説されています（本記事では触れませんので、本書を参照してください）。</p>
+<h2 id="アーキテクトは技術的な選択をするのではなく技術的な選択をガイドする">アーキテクトは技術的な選択をするのではなく、技術的な選択をガイドする</h2>
+<p>アーキテクトは、チームの技術的な選択をガイドする存在でなければいけません。これは、アーキテクトがすべての技術的な選択についての決定を下してはならない、ということも意味します。</p>
+<p>例えば、同じ機能を提供するライブラリAとライブラリBが存在し、どちらかを導入する選択をしようとしている状況を考えます。ここでアーキテクトがすべきことは、ライブラリAとライブラリBのどちらかを選定するのではなく、選定にあたっての指針を作成することです。たとえアーキテクト本人はライブラリAが好ましいと思っていても、アーキテクトの作成した指針に従っているのであれば、チームがライブラリBを選定してもそれは歓迎すべきことです。</p>
+<h2 id="アーキテクトは政治的な舵取りをする">アーキテクトは政治的な舵取りをする</h2>
+<p>本書によれば、アーキテクトが下す決定のほとんどについて異議が唱えられます。これは良い悪いの話ではなく、現実がそうなっているということです。</p>
+<p>だからこそ、アーキテクトは組織の政治を理解し、ファシリテートと交渉のスキルを発揮し、意見の相違を乗り越えて、すべてのステークホルダーが納得できるソリューションを導き出さなければなりません。優れたアーキテクトの50%はソフトスキルである、と本書では指摘されています。</p>
+<h2 id="references">References</h2>
+<ol>
+<li>Mark Richards, Neal Ford, 島田浩二(訳), (2022), ソフトウェアアーキテクチャの基礎 エンジニアリングに基づく体系的アプローチ, オライリー・ジャパン</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/writing-an-interpreter-in-go/">「Go言語でつくるインタプリタ」を読みました📚</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+  <li><a href="/blog/leading-quality/">「LEADING QUALITY（リーディングクオリティ）」を読みました📚</a></li>
+  
+  <li><a href="/blog/software-engineer-career-path/">ソフトウェアエンジニアのキャリアパス</a></li>
+  
+  <li><a href="/blog/unit-testing-principles-practices-and-patterns/">「単体テストの考え方 / 使い方」を読みました📚</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] build.gradle.ktsでJaCoCoを動かす | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] build.gradle.ktsでJaCoCoを動かす" />
+  <meta name="description" content="AndroidでGradleでbuild.gradle.ktsを使っている場合にJaCoCoをセットアップする方法です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] build.gradle.ktsでJaCoCoを動かす</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2023-01-22' pubdate>
+        2023-01-22
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>※ 本記事で紹介している<a href="https://github.com/arturdm/jacoco-android-gradle-plugin">arturdm/jacoco-android-gradle-plugin</a>を用いる方法は、Gradle 8では動かないようです。<a href="https://github.com/arturdm/jacoco-android-gradle-plugin/pull/103">Fixed build crash in gradle 8.0</a>に修正のPRが作成されていますが、本日現在、まだマージはされておりません。代わりに、<a href="https://github.com/thsaravana/jacoco-android-playground">thsaravana/jacoco-android-playground</a>を参考にしてGradleのタスクを作成する方法があります。</p>
+<p>AndroidのGradleの設定ファイルを <code>build.gradle</code> から <code>build.gradle.kts</code> に書き換えた時、JaCoCoをセットアップする方法がわからなかったので頑張って動かしてみました。GradleとJaCoCoについてはよくわかっていないことが多いです。プロジェクトを以下のリポジトリにpushしてあります。</p>
+<ul>
+<li><a href="https://github.com/okuzawats/android-jacoco-test-report">okuzawats/android-jacoco-test-report: measure test coverage of android app with JaCoCo</a></li>
+</ul>
+<p>JaCoCoのセットアップのために、Android用のプラグインを作ってくれている方がいたので、利用させていただきました。とても助かりました。ありがとうございます。</p>
+<ul>
+<li><a href="https://github.com/arturdm/jacoco-android-gradle-plugin">arturdm/jacoco-android-gradle-plugin: Gradle plugin that creates JaCoCo test reports for Android unit tests</a></li>
+</ul>
+<h2 id="プロジェクトのsettingsgradlekts">プロジェクトのsettings.gradle.kts</h2>
+<p>Maven Repositoryを追加します。プロジェクトによっては、プロジェクトの <code>build.gradle.kts</code> に追加する場合もあると思います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencyResolutionManagement {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  repositories {
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    maven(url = <span style="color:#40a02b">&#34;https://plugins.gradle.org/m2/&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="プロジェクトのbuildgradlekts">プロジェクトのbuild.gradle.kts</h2>
+<p>プラグインをdependenciesに追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>buildscript {
+</span></span><span style="display:flex;"><span>  dependencies {
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 追加
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>    classpath(<span style="color:#40a02b">&#34;com.dicedmelon.gradle:jacoco-android:0.1.5&#34;</span>)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>plugins {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><h2 id="モジュールのbuildgradlekts">モジュールのbuild.gradle.kts</h2>
+<p>プラグインを適用し、JaCoCoのバージョン、出力するカバレッジレポートの種別、カバレッジレポートの有効化を行います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>plugins {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  id(<span style="color:#40a02b">&#34;com.dicedmelon.gradle.jacoco-android&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>jacoco {
+</span></span><span style="display:flex;"><span>    toolVersion = <span style="color:#40a02b">&#34;0.8.8&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>tasks.withType&lt;JacocoReport&gt; {
+</span></span><span style="display:flex;"><span>    reports {
+</span></span><span style="display:flex;"><span>        csv.required.<span style="color:#8839ef">set</span>(<span style="color:#8839ef">false</span>)
+</span></span><span style="display:flex;"><span>        html.required.<span style="color:#8839ef">set</span>(<span style="color:#8839ef">true</span>)
+</span></span><span style="display:flex;"><span>        xml.required.<span style="color:#8839ef">set</span>(<span style="color:#8839ef">true</span>)
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>android {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  buildTypes {
+</span></span><span style="display:flex;"><span>    debug {
+</span></span><span style="display:flex;"><span>      enableUnitTestCoverage = <span style="color:#8839ef">true</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><h2 id="カバレッジレポートの出力">カバレッジレポートの出力</h2>
+<p>ユニットテスト実行後、コマンドを実行します。<code>jacoco～</code> のコマンドは、プラグインが作ってくれるタスクです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ./gradlew testDebugUnitTest
+</span></span><span style="display:flex;"><span>$ ./gradlew jacocoDebugUnitTest
+</span></span></code></pre></div><p><code>app</code> モジュールの場合は、<code>app/build/jacoco/</code> にカバレッジレポートが出力されます。</p>
+<h2 id="カバレッジレポートのマージ">カバレッジレポートのマージ</h2>
+<p>モジュールごとに出力されたカバレッジレポートをマージする方法がわからなくて困っていたのですが、<a href="https://twitter.com/t179a">@t179a</a>さんが教えてくれました。ありがとうございました。</p>
+<ul>
+<li><a href="https://speakerdeck.com/t179a/marutimoziyuruapuridejacoconoreportwomatomerufang-fa">マルチモジュールアプリでJacocoのReportをまとめる方法 - Speaker Deck</a></li>
+</ul>
+<p>kotlinx-koverを使うと実現できました。</p>
+<ul>
+<li><a href="https://github.com/Kotlin/kotlinx-kover">Kotlin/kotlinx-kover</a></li>
+</ul>
+<p>まずはプロジェクトのbuild.gradleにkoverを追加して、有効化します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>plugins {
+</span></span><span style="display:flex;"><span>    id(<span style="color:#40a02b">&#34;org.jetbrains.kotlinx.kover&#34;</span>) version <span style="color:#40a02b">&#34;0.6.1&#34;</span> <span style="color:#9ca0b0;font-style:italic">// 追加
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>koverMerged {
+</span></span><span style="display:flex;"><span>    enable() <span style="color:#9ca0b0;font-style:italic">// 追加
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>次に、各モジュールのbuild.gradleにkoverを追加します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>plugins {
+</span></span><span style="display:flex;"><span>    id(<span style="color:#40a02b">&#34;org.jetbrains.kotlinx.kover&#34;</span>) <span style="color:#9ca0b0;font-style:italic">// 追加
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>以下のコマンドで <code>build/reports/kover/merged/</code> にマージされたテストレポートが出力されました。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>% ./gradlew koverMergedReport
+</span></span></code></pre></div><h2 id="references">References</h2>
+<ul>
+<li><a href="https://github.com/arturdm/jacoco-android-gradle-plugin">arturdm/jacoco-android-gradle-plugin: Gradle plugin that creates JaCoCo test reports for Android unit tests</a></li>
+<li><a href="https://qiita.com/tarumzu/items/d1e8fa611d966412c097">JaCoCoカバレッジレポートをPRにコメントしてくれる機能が欲しい！（Codecov使えない人向け） - Qiita</a></li>
+<li><a href="https://speakerdeck.com/t179a/marutimoziyuruapuridejacoconoreportwomatomerufang-fa">マルチモジュールアプリでJacocoのReportをまとめる方法 - Speaker Deck</a></li>
+<li><a href="https://github.com/Kotlin/kotlinx-kover">Kotlin/kotlinx-kover</a></li>
+</ul>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

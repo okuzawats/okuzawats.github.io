@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Android] OkHttpのMockWebServerを用いた、OkHttp &#43; Retrofitのユニットテスト | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Android] OkHttpのMockWebServerを用いた、OkHttp &#43; Retrofitのユニットテスト" />
+  <meta name="description" content="OkHttpのMockWebServerを用いて、OkHttp &#43; RetrofitでRESTful APIのクライアントを実装する部分のユニットテストを行うサンプルコードです。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Android] OkHttpのMockWebServerを用いた、OkHttp &#43; Retrofitのユニットテスト</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2022-01-10' pubdate>
+        2022-01-10
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>OkHttpのMockWebServerを用いて、OkHttpとRetrofitを用いたRESTful APIアクセス部分のユニットテストを書いていきます。Android Developersに掲載されているアプリアーキテクチャガイドにおける、Data layerのRemoteDataSourceにあたる部分です。</p>
+<ul>
+<li><a href="https://developer.android.com/jetpack/guide/data-layer">Data layer | Android Developers</a></li>
+</ul>
+<p>以下のサンプルコードのOkHttpとMockWebServerのバージョンは4.9.1、Retrofitのバージョンは2.9.0です（バージョンが少し古いのは、このサンプルコードを書いたのがしばらく前だったからです）。MockWebServerは <code>testImplementation</code> としています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>dependencies {
+</span></span><span style="display:flex;"><span>  implementation(<span style="color:#40a02b">&#34;com.squareup.okhttp3:okhttp:4.9.1&#34;</span>)
+</span></span><span style="display:flex;"><span>  implementation(<span style="color:#40a02b">&#34;com.squareup.retrofit2:retrofit:2.9.0&#34;</span>)
+</span></span><span style="display:flex;"><span>  implementation(<span style="color:#40a02b">&#34;org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0&#34;</span>)
+</span></span><span style="display:flex;"><span>  implementation(<span style="color:#40a02b">&#34;com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0&#34;</span>)
+</span></span><span style="display:flex;"><span>  testImplementation(<span style="color:#40a02b">&#34;com.squareup.okhttp3:mockwebserver:4.9.1&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="mockwebserverを用いたokhttpとretrofitを用いたrestful-apiアクセス部分のユニットテスト">MockWebServerを用いた、OkHttpとRetrofitを用いたRESTful APIアクセス部分のユニットテスト</h3>
+<p>はじめにテストクラスの最終型を示します。サンプルコードの元になったのが自分の個人プロジェクトなので、趣味に走っているところがあります。それについては後段で説明を加えていきます。ポイントは、 <code>@Before</code> と <code>@After</code> でMockWebServerの起動と停止をおこなっていること、各テストケースでMockWebServerのレスポンスコードとレスポンスボディを <code>enqueue</code> していることになるでしょうか。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">RemoteDataSourceImplTest</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">mockWebServer</span> = MockWebServer()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">lateinit</span> <span style="color:#8839ef">var</span> <span style="color:#fe640b">target</span>: RemoteDataSource
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@ExperimentalSerializationApi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Before</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">setUp</span>() {
+</span></span><span style="display:flex;"><span>    mockWebServer.start()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    target = RemoteDataSourceImpl(
+</span></span><span style="display:flex;"><span>      apiClient = TestApiClientProvider().provideWith(mockWebServer),
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@After</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">tearDown</span>() {
+</span></span><span style="display:flex;"><span>    mockWebServer.shutdown()
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testGetAwesomeData</span>_returnRightIfSuccess() = runBlocking {
+</span></span><span style="display:flex;"><span>    mockWebServer.enqueue(MockResponse().setResponseCode(<span style="color:#fe640b">200</span>).setBody(dummyJson()))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = target.getAwesomeData()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    assert(<span style="color:#8839ef">actual</span> <span style="color:#8839ef">is</span> <span style="color:#df8e1d">Either</span>.Right <span style="color:#04a5e5;font-weight:bold">&amp;&amp;</span> <span style="color:#8839ef">actual</span>.<span style="color:#8839ef">value</span>.items.isNotEmpty())
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testGetAwesomeData</span>_returnLeftIfFailure() = runBlocking {
+</span></span><span style="display:flex;"><span>    mockWebServer.enqueue(MockResponse().setResponseCode(<span style="color:#fe640b">500</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">val</span> <span style="color:#fe640b">actual</span> = target.getAwesomeData()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    assert(<span style="color:#8839ef">actual</span> <span style="color:#8839ef">is</span> <span style="color:#df8e1d">Either</span>.Left)
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">private</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">dummyJson</span>(): String =
+</span></span><span style="display:flex;"><span><span style="color:#40a02b">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">{
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">    &#34;items&#34;: [
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 1,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Starbucks&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:48:15.209Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:48:15.209Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        },
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 2,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Komeda Coffee&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:48:46.648Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:48:46.648Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        },
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 3,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Mr.Donuts&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:49:16.757Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:49:16.757Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">    ]
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">}&#34;&#34;&#34;</span>.trimIndent()
+</span></span></code></pre></div><p>コードの説明を以下に示します</p>
+<h3 id="mockwebserverの起動と停止">MockWebServerの起動と停止</h3>
+<p>MockWebServerの起動と停止は以下の箇所で行っています。テストケースごとにMockWebServerの起動と停止を行うため、 <code>@Before</code> で <code>MockWebServer#start</code> を、 <code>@After</code> で <code>MockWebServer#shutdown</code> を呼んでいます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">mockWebServer</span> = MockWebServer()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@ExperimentalSerializationApi</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Before</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">setUp</span>() {
+</span></span><span style="display:flex;"><span>    mockWebServer.start()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 省略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@After</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">tearDown</span>() {
+</span></span><span style="display:flex;"><span>    mockWebServer.shutdown()
+</span></span><span style="display:flex;"><span>  }
+</span></span></code></pre></div><h3 id="mockwebserverへのレスポンスのenqueue">MockWebServerへのレスポンスのenqueue</h3>
+<p>以下の箇所では、MockWebServerにモックレスポンスをenqueueしています。MockWebServerにリクエストを行った時に、queueからdequeueされたモックレスポンスを返してくれます。テストケースに合わせてモックレスポンスを作ってあげることで、RESTful APIアクセス部分のユニットテストを書くことができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testGetAwesomeData</span>_returnRightIfSuccess() = runBlocking {
+</span></span><span style="display:flex;"><span>    mockWebServer.enqueue(MockResponse().setResponseCode(<span style="color:#fe640b">200</span>).setBody(dummyJson()))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@Test</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">testGetAwesomeData</span>_returnLeftIfFailure() = runBlocking {
+</span></span><span style="display:flex;"><span>    mockWebServer.enqueue(MockResponse().setResponseCode(<span style="color:#fe640b">500</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span></code></pre></div><p>上記の1個目のテストケースでは、リクエストに成功した場合（レスポンスコードが200番台）の時のテストを行っています。レスポンスボディーには、後述するJsonをrawStringで定義した値を渡しています。</p>
+<p>上記の2個目のテストケースでは、リクエストに失敗した場合（レスポンスコードが200番台でない）のテストを行っています。レスポンスコードを適宜設定することで、レスポンスコードに応じた挙動のテストを記述できます。また、1個目の例と同様に <code>setBody</code> を呼び出すことで、エラーレスポンスを定義することもできます。</p>
+<h3 id="json">Json</h3>
+<p>レスポンスのJsonはKotlinのrawStringで定義しました。Jsonのファイルをプロジェクト内に置き、ファイルからJsonの文字列を読み込む方法もあると思います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">private</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">dummyJson</span>(): String =
+</span></span><span style="display:flex;"><span><span style="color:#40a02b">&#34;&#34;&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">{
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">    &#34;items&#34;: [
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 1,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Starbucks&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:48:15.209Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:48:15.209Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        },
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 2,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Komeda Coffee&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:48:46.648Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:48:46.648Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        },
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        {
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;id&#34;: 3,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;name&#34;: &#34;Mr.Donuts&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;created_at&#34;: &#34;2022-01-02T05:49:16.757Z&#34;,
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">            &#34;updated_at&#34;: &#34;2022-01-02T05:49:16.757Z&#34;
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">    ]
+</span></span></span><span style="display:flex;"><span><span style="color:#40a02b">}&#34;&#34;&#34;</span>.trimIndent()
+</span></span></code></pre></div><h3 id="retrofit">Retrofit</h3>
+<p>Retrofitを用いた、RESTful APIのクライアントは以下のように作っています。クライアントのinterfaceはApiClientという名前にしました。APIアクセスを行う関数については、データをRetrofitのResponseに包んで返すsuspend関数として定義しています。Kotlin Coroutinesではなく、例えばRxJavaのSingleを使うような場合でも、全体的な実装の流れは変わらないと思います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">ApiClient</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#1e66f5;font-weight:bold">@GET</span>(<span style="color:#40a02b">&#34;/&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getAwesomeData</span>(): Response&lt;AwesomeData&gt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="apiclientの注入">ApiClientの注入</h3>
+<p>テスト対象にApiClientを注入していますが、そのインスタンスは以下のような処理で生成するようにしています。このサンプルコードではJsonのパーサとしてKotlin Serializationを使っていますが、例えばMoshiを使う時なども同様のインスタンス生成のコードを書けると思います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#1e66f5;font-weight:bold">@ExperimentalSerializationApi</span>
+</span></span><span style="display:flex;"><span><span style="color:#8839ef">internal</span> <span style="color:#8839ef">class</span> <span style="color:#df8e1d">TestApiClientProvider</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">provideWith</span>(mockWebServer: MockWebServer): ApiClient =
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">Retrofit</span>.Builder()
+</span></span><span style="display:flex;"><span>      .baseUrl(mockWebServer.url(<span style="color:#40a02b">&#34;&#34;</span>))
+</span></span><span style="display:flex;"><span>      .client(OkHttpClient())
+</span></span><span style="display:flex;"><span>      .addConverterFactory(converterFactory())
+</span></span><span style="display:flex;"><span>      .build()
+</span></span><span style="display:flex;"><span>      .create(ApiClient<span style="color:#04a5e5;font-weight:bold">::</span><span style="color:#8839ef">class</span>.java)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">json</span> = Json { ignoreUnknownKeys = <span style="color:#8839ef">true</span> }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">converterFactory</span>(): <span style="color:#df8e1d">Converter</span>.Factory =
+</span></span><span style="display:flex;"><span>    json.asConverterFactory(contentType = <span style="color:#40a02b">&#34;application/json&#34;</span>.toMediaType())
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="テスト対象のクラス">テスト対象のクラス</h3>
+<p>参考のために、テスト対象のクラスの定義も記載しておきます。Either型を返すsuspend funのみを定義したinterfaceです。Either型については、 <a href="https://okuzawats.com/blog/either-and-option-in-kotlin/">Either / Option in Kotlin</a> に書きました。簡単に言うと、成功をRight型、失敗をLeft型で表す<a href="https://okuzawats.com/blog/kotlin-sealed-class/">sealed class</a>です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">interface</span> <span style="color:#df8e1d">RemoteDataSource</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getAwesomeData</span>(): Either&lt;AwesomeException, Awesomedata&gt;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>その実装クラスは以下です。前述のApiClientをコンストラクタで注入しています。RetrofitのResponse型をEither型に変換して返しています（Retrofitへの依存をRemoteDataSourceImplの外に持ち出さないようにするためです）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">class</span> <span style="color:#df8e1d">RemoteDataSourceImpl</span> <span style="color:#1e66f5;font-weight:bold">@Inject</span> <span style="color:#8839ef">constructor</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">private</span> <span style="color:#8839ef">val</span> <span style="color:#fe640b">apiClient</span>: ApiClient,
+</span></span><span style="display:flex;"><span>) : RemoteDataSource {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">override</span> <span style="color:#8839ef">suspend</span> <span style="color:#8839ef">fun</span> <span style="color:#1e66f5">getAwesomeData</span>(): Either&lt;AwesomeException, Awesomedata&gt; =
+</span></span><span style="display:flex;"><span>    apiClient.getAwesomeData().toEither()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>RetrofitのResponse型は、レスポンスコードが200番台の時に <code>isSuccessful</code> がtrueを返します。このサンプルコードでは、単純に、 <code>isSuccessful</code> がtrueの時はEither.Right、falseの時はEither.Leftを返すようにしています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-kotlin" data-lang="kotlin"><span style="display:flex;"><span><span style="color:#8839ef">private</span> <span style="color:#8839ef">fun</span> &lt;<span style="color:#df8e1d">T</span> : <span style="color:#df8e1d">Any</span>&gt; <span style="color:#1e66f5">Response</span>&lt;T&gt;.toEither(): Either&lt;AwesomeException, T&gt; =
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">if</span> (isSuccessful) {
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">Either</span>.Right(requireNotNull(body())
+</span></span><span style="display:flex;"><span>  } <span style="color:#8839ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#df8e1d">Either</span>.Left(AwesomeException())
+</span></span><span style="display:flex;"><span>  }
+</span></span></code></pre></div><h2 id="reference">Reference</h2>
+<ol>
+<li><a href="https://developer.android.com/jetpack/guide/data-layer">Data layer | Android Developers</a>（最終アクセス日：2022年1月7日）</li>
+<li><a href="https://okuzawats.com/blog/either-and-option-in-kotlin/">Either / Option in Kotlin</a>（最終アクセス日：2022年1月10日）</li>
+<li><a href="https://okuzawats.com/blog/kotlin-sealed-class/">[Kotlin] sealed classに親しむ</a>（最終アクセス日：2022年1月20日）</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+  <li><a href="/blog/truth-custom-subject/">Truthのカスタムサブジェクトを定義する</a></li>
+  
+  <li><a href="/blog/mockk/">Mockk によるモック入門</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

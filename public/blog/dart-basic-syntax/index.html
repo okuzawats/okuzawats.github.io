@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>[Dart] 基本的な文法 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="[Dart] 基本的な文法" />
+  <meta name="description" content="Dartの基本的な文法についてまとめます。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>[Dart] 基本的な文法</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2020-05-21' pubdate>
+        2020-05-21
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>Dartの基本的な文法についてまとめます。</p>
+<h2 id="コンストラクタ">コンストラクタ</h2>
+<p>Dartにおけるコンストラクタの最も原始的な構文は以下のように書けます。コンストラクタの引数としてString型のパラメータ<code>name</code>を受け取り、コンストラクタの本体の中でメンバ変数に代入しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog(<span style="color:#d20f39">String</span> name) {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.name <span style="color:#04a5e5;font-weight:bold">=</span> name;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>以下の構文では、コンストラクタの引数として受け取ったパラメータを直接メンバ変数に代入しています。この構文では、メンバ変数をfinalにすることができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog(<span style="color:#8839ef">this</span>.name);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>上記の構文を用いた場合にも、コンストラクタ本体を定義することができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog(<span style="color:#8839ef">this</span>.name) {
+</span></span><span style="display:flex;"><span>    print(name);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dog dog <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#40a02b">&#39;pochi&#39;</span>); <span style="color:#9ca0b0;font-style:italic">// =&gt; pochi
+</span></span></span></code></pre></div><p>また、<code>this.name</code>の部分を<code>{}</code>で囲うと、コンストラクタ呼び出しを名前付き引数で行うことができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog({<span style="color:#8839ef">this</span>.name});
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dog dog <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span></code></pre></div><p>Dartでは、コンストラクタのオーバーロードができません。その代わりに、Dartでは名前付きコンストラクタを定義することができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog(<span style="color:#d20f39">String</span> name) {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">this</span>.name <span style="color:#04a5e5;font-weight:bold">=</span> name;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog.noName() {
+</span></span><span style="display:flex;"><span>    name <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#40a02b">&#39;no name&#39;</span>;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dog noName <span style="color:#04a5e5;font-weight:bold">=</span> Dog.noName();
+</span></span><span style="display:flex;"><span>print(noName.name); <span style="color:#9ca0b0;font-style:italic">// =&gt; no name
+</span></span></span></code></pre></div><p>なお、上記の例において、プライマリコンストラクタでは<code>this</code>を用いてメンバ変数にアクセスし、名前付きコンストラクタでは<code>this</code>を用いずにメンバ変数にアクセスしている理由は、前者では名前の隠蔽が発生し、後者では発生しないためです。</p>
+<h2 id="アクセス修飾子">アクセス修飾子</h2>
+<p>Dartにはアクセス修飾子がありません。その代わり、メンバの名前で可視性を与えることができます。メンバの名前が<code>_</code>から始まるものは、いわゆるprivateな可視性となります。それ以外の名前は、いわゆるpublicな可視性となります。</p>
+<p>例えば、以下のクラスのメンバ変数<code>_name</code>はprivateなメンバ変数となり、同一ライブラリ内からのみアクセス可能です（<a href="https://www.woolha.com/tutorials/dart-using-access-modifiers-private-public">Dart - Using Access Modifiers (Private &amp; Public) - Woolha</a>）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">// cat.dart
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Cat</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> _name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Cat(<span style="color:#d20f39">String</span> name) {
+</span></span><span style="display:flex;"><span>    _name <span style="color:#04a5e5;font-weight:bold">=</span> name;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>同一ライブラリ内からのみアクセス可能と言うのは、例えば以下のように同一ファイル内にクラスを定義した場合は、他クラスのprivateなメンバにアクセスすることができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">// cat.dart
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Cat</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> _name;
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> _keeper;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Cat(<span style="color:#d20f39">String</span> name) {
+</span></span><span style="display:flex;"><span>    _name <span style="color:#04a5e5;font-weight:bold">=</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Human human <span style="color:#04a5e5;font-weight:bold">=</span> Human();
+</span></span><span style="display:flex;"><span>    _keeper <span style="color:#04a5e5;font-weight:bold">=</span> human._name;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Human</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> _name <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#40a02b">&#39;human&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>可視性の範囲外からは、privateなメンバにはアクセスできません。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic">// main.dart
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span><span style="color:#d20f39">void</span> main(List<span style="color:#04a5e5;font-weight:bold">&lt;</span><span style="color:#d20f39">String</span><span style="color:#04a5e5;font-weight:bold">&gt;</span> arguments) {
+</span></span><span style="display:flex;"><span>  Cat cat <span style="color:#04a5e5;font-weight:bold">=</span> Cat(<span style="color:#40a02b">&#39;tama&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">//cat._name; // 不可
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>privateなメソッドも、メソッド名を<code>_</code>から始めて定義します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Cat</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">void</span> _toilet() {
+</span></span><span style="display:flex;"><span>    <span style="color:#9ca0b0;font-style:italic">// do something here
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>setterは隠蔽し、getterだけを公開したい時は、以下のように別途getterを定義します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Cat</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> _name;
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">String</span> <span style="color:#d20f39">get</span> name <span style="color:#04a5e5;font-weight:bold">=&gt;</span> _name;
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span></code></pre></div><p>拡張メソッド（後述）もprivateにすることが可能です。privateな拡張メソッドは、拡張メソッドを使いたい場所を限定したい時に使います。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>extension CatExtension on Cat {
+</span></span><span style="display:flex;"><span>  Dog _toDog() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> Poodle(<span style="color:#04a5e5">name:</span> <span style="color:#8839ef">this</span>.name);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="継承">継承</h2>
+<p>Dartでは、<code>extends</code>キーワードを用いてクラスの継承を行うことができます。単一継承のみ可能で、多重継承はできません。</p>
+<p>以下の例では、抽象クラスDogを継承して、Poodleクラスを実装しています。抽象クラスを定義するためのキーワードは<code>abstract</code>です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">abstract</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> name;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  Dog({<span style="color:#8839ef">this</span>.name});
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Poodle</span> <span style="color:#d20f39">extends</span> Dog {
+</span></span><span style="display:flex;"><span>  Poodle({name}) <span style="color:#04a5e5;font-weight:bold">:</span> <span style="color:#8839ef">super</span>(<span style="color:#04a5e5">name:</span> name);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Dog poodle <span style="color:#04a5e5;font-weight:bold">=</span> Poodle(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span></code></pre></div><p>抽象クラスでは、抽象メソッドを定義することができます。抽象メソッドは、メソッドのシグネチャのみ定義し、メソッド本体を持たないメソッドです。具象クラスの中では定義できません。また、抽象メソッドは、具象クラスの中で必ずオーバーライドしなければなりません。メソッドをオーバーライドするには、対象となるメソッドに<code>@override</code>アノテーションを付与します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">abstract</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">void</span> bark(); <span style="color:#9ca0b0;font-style:italic">// 抽象メソッド
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Poodle</span> <span style="color:#d20f39">extends</span> Dog {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">@</span>override
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">void</span> bark() {
+</span></span><span style="display:flex;"><span>    print(<span style="color:#40a02b">&#39;bow wow!&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>また抽象クラスにおいては、メソッドの実装を持つことも可能です。この場合、具象クラスにおいてメソッドをオーバーライドする必要は必ずしもありませんが、オーバーライドすることも可能です。この時、必要に応じて<code>super.メソッド名()</code>で継承元のメソッドを呼び出すことが可能です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">abstract</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">void</span> run() {
+</span></span><span style="display:flex;"><span>    print(<span style="color:#40a02b">&#39;running...&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Poodle</span> <span style="color:#d20f39">extends</span> Dog {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">@</span>override
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">void</span> run() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">super</span>.run();
+</span></span><span style="display:flex;"><span>    print(<span style="color:#40a02b">&#39;it is a poodle...&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>メソッドだけでなく、メンバ変数についてもオーバーライドすることが可能です。なお、メンバ変数を抽象的に定義する方法はわかりませんでした。Dart <code>2.8.2</code>では実装されていないものと思われます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">abstract</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Dog</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> size <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#40a02b">&#39;medium&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">class</span> <span style="color:#df8e1d">Poodle</span> <span style="color:#d20f39">extends</span> Dog {
+</span></span><span style="display:flex;"><span>  <span style="color:#9ca0b0;font-style:italic">// 略
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>  <span style="color:#d20f39">@</span>override
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">final</span> <span style="color:#d20f39">String</span> size <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#40a02b">&#39;large&#39;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>クラスやメソッドのオーバーライドを禁止する機能についても、おそらくDart <code>2.8.2</code>では実装されていないです。</p>
+<h2 id="拡張メソッド">拡張メソッド</h2>
+<p>Dart 2.7以降、Dartでは型に拡張メソッドを定義して、機能を追加することができます。構文は以下です（<a href="https://dart.dev/guides/language/extension-methods">Extension methods | Dart</a>）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>extension <span style="color:#04a5e5;font-weight:bold">&lt;</span>extension name<span style="color:#04a5e5;font-weight:bold">&gt;</span> on <span style="color:#04a5e5;font-weight:bold">&lt;</span>type<span style="color:#04a5e5;font-weight:bold">&gt;</span> {
+</span></span><span style="display:flex;"><span>  (<span style="color:#04a5e5;font-weight:bold">&lt;</span>member definition<span style="color:#04a5e5;font-weight:bold">&gt;</span>)<span style="color:#04a5e5;font-weight:bold">*</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>以下の例では<code>int</code>型に拡張メソッドとして<code>toTenTimes()</code>を定義しています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>extension IntExtension on <span style="color:#d20f39">int</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">int</span> toTenTimes() {
+</span></span><span style="display:flex;"><span>    <span style="color:#8839ef">return</span> <span style="color:#8839ef">this</span> <span style="color:#04a5e5;font-weight:bold">*</span> <span style="color:#fe640b">10</span>;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>int</code>型に対して、あたかも<code>int</code>型に元から<code>toTenTimes()</code>というメソッドが定義されていたかのように<code>toTenTimes()</code>を呼び出すことが可能になります。ただし、インポートは必要です。拡張メソッドの中では、<code>this</code>で対象のクラスのインスタンスにアクセスすることができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">int</span> answer <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#fe640b">42.</span>toTenTimes();
+</span></span><span style="display:flex;"><span>print(answer); <span style="color:#9ca0b0;font-style:italic">// =&gt; 420
+</span></span></span></code></pre></div><p>拡張について名前を定義することができます。上の例では、IntExtensionという名前で拡張をしています。拡張に名前を定義している理由は、「<em>APIがコンフリクトした時に備えて拡張は名前を持っている（extensions have names, which can be helpful if an API conflict arises）</em>（<a href="https://dart.dev/guides/language/extension-methods">Extension methods | Dart</a>）」とのことです。</p>
+<h2 id="ラムダ">ラムダ</h2>
+<p>Dartでは以下の形式でラムダを書くことができます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>(<span style="color:#d20f39">int</span> i) {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">return</span> i <span style="color:#04a5e5;font-weight:bold">+</span> <span style="color:#fe640b">1</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>変数succに上記のラムダをバインドします。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">int</span> Function(<span style="color:#d20f39">int</span>) succ <span style="color:#04a5e5;font-weight:bold">=</span> (<span style="color:#d20f39">int</span> i) {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">return</span> i <span style="color:#04a5e5;font-weight:bold">+</span> <span style="color:#fe640b">1</span>;
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>バインドした変数を経由してラムダを実行します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>print(succ(<span style="color:#fe640b">0</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 1
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>print(succ(<span style="color:#fe640b">100</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 101
+</span></span></span></code></pre></div><p>以下の形式は上記の形式の糖衣構文です。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">int</span> Function(<span style="color:#d20f39">int</span>) succ2 <span style="color:#04a5e5;font-weight:bold">=</span> (<span style="color:#d20f39">int</span> i) <span style="color:#04a5e5;font-weight:bold">=&gt;</span> i <span style="color:#04a5e5;font-weight:bold">+</span> <span style="color:#fe640b">1</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(succ2(<span style="color:#fe640b">0</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 1
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>print(succ2(<span style="color:#fe640b">100</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 101
+</span></span></span></code></pre></div><p>ラムダを渡して実行してみます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">int</span> calculate(<span style="color:#d20f39">int</span> Function(<span style="color:#d20f39">int</span>) func, <span style="color:#d20f39">int</span> input) {
+</span></span><span style="display:flex;"><span>  <span style="color:#8839ef">return</span> func.call(input);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(calculate(succ, <span style="color:#fe640b">42</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 43
+</span></span></span></code></pre></div><p>当然、名前をつけないラムダを渡すこともできます。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>print(calculate((<span style="color:#d20f39">int</span> i) <span style="color:#04a5e5;font-weight:bold">=&gt;</span> i <span style="color:#04a5e5;font-weight:bold">+</span> <span style="color:#fe640b">1</span> , <span style="color:#fe640b">42</span>)); <span style="color:#9ca0b0;font-style:italic">// =&gt; 43
+</span></span></span></code></pre></div><h2 id="identicalを用いた参照の等価性の評価">identicalを用いた参照の等価性の評価</h2>
+<p><code>identical</code>を用いて、参照の等価性を評価することができます。<code>identical</code>はdart:coreに含まれています。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span><span style="color:#d20f39">bool</span> identical(
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">Object</span> a,
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">Object</span> b
+</span></span><span style="display:flex;"><span>)
+</span></span></code></pre></div><p>以下の例では、2つの変数の参照が等しいため、<code>identical</code>はtrueを返します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>Dog dog <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">bool</span> result <span style="color:#04a5e5;font-weight:bold">=</span> identical(dog, dog);
+</span></span><span style="display:flex;"><span>print(result); <span style="color:#9ca0b0;font-style:italic">// =&gt; true
+</span></span></span></code></pre></div><p>以下の例では、2つの変数の参照が異なるため、<code>identical</code>はfalseを返します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>Dog dog <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span><span style="display:flex;"><span>Cat cat <span style="color:#04a5e5;font-weight:bold">=</span> Cat(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;tama&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">bool</span> result <span style="color:#04a5e5;font-weight:bold">=</span> identical(dog, cat);
+</span></span><span style="display:flex;"><span>print(result); <span style="color:#9ca0b0;font-style:italic">// =&gt; false
+</span></span></span></code></pre></div><p>変数が異なっても、参照が等価であれば<code>identical</code>はtrueを返します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>Dog dog1 <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span><span style="display:flex;"><span>Dog dog2 <span style="color:#04a5e5;font-weight:bold">=</span> dog1;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">bool</span> result <span style="color:#04a5e5;font-weight:bold">=</span> identical(dog1, dog2);
+</span></span><span style="display:flex;"><span>print(result); <span style="color:#9ca0b0;font-style:italic">// =&gt; true
+</span></span></span></code></pre></div><p><code>identical</code>が返すbool値は、<code>==</code>の結果とは異なります（以下の例では<code>==</code>オペレーターをoverrideして<code>name</code>が等しければ<code>==</code>がtrueを返すようにしています）。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dart" data-lang="dart"><span style="display:flex;"><span>Dog dog1 <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span><span style="display:flex;"><span>Dog dog2 <span style="color:#04a5e5;font-weight:bold">=</span> Dog(<span style="color:#04a5e5">name:</span> <span style="color:#40a02b">&#39;pochi&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">bool</span> result <span style="color:#04a5e5;font-weight:bold">=</span> identical(dog1, dog2);
+</span></span><span style="display:flex;"><span>print(result); <span style="color:#9ca0b0;font-style:italic">// =&gt; false
+</span></span></span><span style="display:flex;"><span><span style="color:#9ca0b0;font-style:italic"></span>print(dog1 <span style="color:#04a5e5;font-weight:bold">==</span> dog2); <span style="color:#9ca0b0;font-style:italic">// =&gt; true
+</span></span></span></code></pre></div>
+  </content>
+  
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

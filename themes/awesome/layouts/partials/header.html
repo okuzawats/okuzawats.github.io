@@ -1,0 +1,5 @@
+<a href="{{ relURL .Site.Home.Permalink }}">
+<h1>{{ .Site.Title }}</h1>
+</a>
+<h2>{{ .Site.Params.description }}</h2>
+<nav>{{- partial "nav.html" . -}}</nav>

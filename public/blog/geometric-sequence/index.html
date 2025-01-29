@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>数列、等比数列、等比級数、無限等比級数 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="数列、等比数列、等比級数、無限等比級数" />
+  <meta name="description" content="数列、等比数列、等比級数、無限等比級数の概要について述べる。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>数列、等比数列、等比級数、無限等比級数</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-05-26' pubdate>
+        2024-05-26
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>本記事では、数列、等比数列、等比級数、無限等比級数の概要について記述します。</p>
+<h3 id="数列">数列</h3>
+<p>数を列に並べたものを一般に<strong>数列</strong>と呼びます。例えば、<a href="https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0">フィボナッチ数</a>として知られる数の数列は以下のようになります。</p>
+<p>$$
+0, 1, 1, 2, 3, 5, 8, 13, {\cdots}
+$$</p>
+<p>数列の最初の数を<strong>初項</strong>と呼びます。上記フィボナッチ数列の例では <code>0</code> が初項です。</p>
+<h3 id="等比数列">等比数列</h3>
+<p>初項を <code>a</code> として、次の項が前の項の定数倍となっている数列、すなわち <code>n</code> 番目の項が <code>n-1</code> 番目の項の <code>r</code> 倍となっている数列を一般に<strong>等比数列</strong>と呼びます。ここで <code>r</code> を<strong>公比</strong>と呼びます。 例えば、初項を <code>1</code> 、公比を <code>2</code> とした数列は以下のようになります。</p>
+<p>$$
+1, 2, 4, 8, 16, 32, 64, 128, {\cdots}
+$$</p>
+<p>等比数列の一般項、すなわち第 <code>n</code> 番目の項は、以下のように表すことができます。ここで <code>a</code> は初項、 <code>r</code> は公比です。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+a_n = {a}{\cdot}{r^n}
+\end{split}
+\end{equation}
+$$</p>
+<h3 id="等比級数">等比級数</h3>
+<p>第 <code>n</code> 項までの等比数列の和（<strong>等比級数</strong>）は以下のように表すことができます。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+S_n &amp;= a_0 + a_1 + {\cdots} + a_n
+\end{split}
+\end{equation}
+$$</p>
+<p>ここで、両辺に <code>1 - r</code> を乗じます。 <code>r = 1</code> の場合の等比級数は自明なので、ここでは <code>r ≠ 1</code> と仮定します。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+S_n{\cdot}(1 - r) = a_0{\cdot}(1 - r) + a_1{\cdot}(1 - r) + {\cdots} + a_n{\cdot}(1 - r)
+\end{split}
+\end{equation}
+$$</p>
+<p>ここで、等比数列の各項には以下の関係が成り立ちます。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+a_{k+1} = a_k {\cdot} r
+\end{split}
+\end{equation}
+$$</p>
+<p>(4)式を用いると、(3)式の右辺は以下のようになります。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+S_n{\cdot}(1 - r) &amp;= (a_0 - a_1) + (a_1 - a_2) + {\cdots} + (a_n - a_{n+1})\\
+&amp;= a_0 - a_{n+1}
+\end{split}
+\end{equation}
+$$</p>
+<p>最終的に、等比級数は式(1)及び式(5)を用いて以下のように書くことができます。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+S_n = { \frac {a {\cdot} (1 - r^{n+1})} {1 - r} }
+\end{split}
+\end{equation}
+$$</p>
+<h3 id="無限等比級数">無限等比級数</h3>
+<p>式(6)から、 <code>n</code> が無限大の時の等比級数（<strong>無限級数</strong>）は式(7)となる。特に <code>-1 &lt; r &lt; 1</code> の時、無限級数は収束します。</p>
+<p>$$
+\begin{equation}
+\begin{split}
+\lim_{n \to \infty} S_n = \begin{cases} \infty(r \ge 1)\\ {\frac a {1-r}}(|r| \lt 1) \end{cases}
+\end{split}
+\end{equation}
+$$</p>
+<h3 id="references">References</h3>
+<ol>
+<li><a href="https://ja.wikipedia.org/wiki/%E3%83%95%E3%82%A3%E3%83%9C%E3%83%8A%E3%83%83%E3%83%81%E6%95%B0">フィボナッチ数 - Wikipedia</a>（最終アクセス日：2024年5月26日）</li>
+<li><a href="https://ja.wikipedia.org/wiki/%E7%AD%89%E6%AF%94%E6%95%B0%E5%88%97">等比数列 - Wikipedia</a>（最終アクセス日：2024年5月26日）</li>
+</ol>
+
+  </content>
+  
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>「Go言語でつくるインタプリタ」を読みました📚 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="「Go言語でつくるインタプリタ」を読みました📚" />
+  <meta name="description" content="「Go言語でつくるインタプリタ」を読んだ感想です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>「Go言語でつくるインタプリタ」を読みました📚</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-10-27' pubdate>
+        2024-10-27
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>「<strong>Go言語でつくるインタプリタ</strong>」 (Thorsten (2018))を読みました。読みました、というか読んでインタープリタを実装し、一部の構文を追加で実装しました。書籍を購入したのが2022年5月、そこから一度チャレンジして諦め、2回目のチャレンジが2023年1月、3回目のチャレンジで読了できました。足掛け2年5ヶ月となかなか時間がかかり、途中しんどい時期もありましたが、読了できて良かったです。</p>
+<p>ソースコードはこちらのリポジトリに置いておきました。GitHub Actionsで実装したインタープリタを実行して、FizzBuzzを動かすところまで書いてあります。</p>
+<ul>
+<li><a href="https://github.com/okuzawats/writing-an-interpreter-in-go">okuzawats/writing-an-interpreter-in-go</a></li>
+</ul>
+<h3 id="インタープリタに関する学習の履歴">インタープリタに関する学習の履歴</h3>
+<p>2022年5月にインタープリタを実装して学ぼうと思い立ち、最初に手に取ったのが本書「Go言語でつくるインタプリタ」でした（たぶん）。飽きたのか挫折したのか（おそらく後者）、最初のチャレンジは失敗に終わりました。</p>
+<p>その後、「<strong>RubyでつくるRuby ゼロから学びなおすプログラミング言語入門</strong>」 (遠藤 (2017))という書籍に出会い、「Go言語でつくるインタプリタ」に再チャレンジする前に、こちらの本を先に読みました。</p>
+<p>「RubyでつくるRuby」は、「Go言語でつくるインタプリタ」よりも入門的な書籍です。「Go言語でつくるインタプリタ」では構文解析のところから実装していきますが、「RubyでつくるRuby」では著者の実装したライブラリを利用することで構文解析の実装とその説明を省略し、読者は抽象構文木の評価のみを実装します。「RubyでつくるRuby」を読了すれば、Ruby（のサブセット）のインタープリタが完成します<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<p>「RubyでつくるRuby」を先に読んでおいて良かったと思ったことが一つあります。「Go言語でつくるインタプリタ」では構文解析の実装が終わらなければ動かすことのできない、実際にインタープリタを動かしてプログラムを実行する、というところを先にできたことです。実際、「Go言語でつくるインタプリタ」の後半の内容は、「RubyでつくるRuby」で学習済みの内容が多く、既視感を感じながら実装することになりました。</p>
+<p>ゴールが見えていることで、「先の見えなさ」からくるモチベーションの低下がなくなりました。</p>
+<h3 id="何故2回もgo言語でつくるインタプリタのチャレンジに失敗したのか">何故、2回も「Go言語でつくるインタプリタ」のチャレンジに失敗したのか</h3>
+<p>内容を十分に理解できなかったこともありますが、同じような実装が続いて飽きてしまうためです。今回の3回目のチャレンジでも、飽きとの戦いがありました。しかし、前よりもインタープリタの理論を理解できてきたこと、Go言語についても理解を深めたことで、何とか読了することができました。</p>
+<h3 id="インタープリタを拡張した">インタープリタを拡張した</h3>
+<p>FizzBuzzを実装するために剰余演算子が欲しかったので、インタープリタを拡張して剰余演算子を実装しました。20分くらいで実装できて感動しました。</p>
+<ul>
+<li><a href="https://github.com/okuzawats/writing-an-interpreter-in-go/pull/46">剰余演算子を実装・FizzBuzzを修正</a></li>
+</ul>
+<p>最終的に、こんな感じでFizzBuzzを実装しました。</p>
+<pre tabindex="0"><code>let fb = fn(n) {
+  if (n &gt; 1) {
+    fb(n - 1);
+  };
+
+  if (n % 15 == 0) {
+    puts(&#34;FizzBuzz&#34;);
+    return;
+  }
+  if (n % 3 == 0) {
+    puts(&#34;Fuzz&#34;);
+    return;
+  }
+  if (n % 5 == 0) {
+    puts(&#34;Buzz&#34;);
+    return;
+  }
+  puts(n);
+};
+
+fb(100);
+</code></pre><h3 id="まとめ">まとめ</h3>
+<p>読んでいる途中は「楽しい」という感覚はあまりありませんでしたが、いざ完成して自分で書いたプログラムを動かせるようになるととても楽しいです！また、言語処理型の気持ちがすこしだけわかるようになった気がします🤏</p>
+<h3 id="reference">Reference</h3>
+<ol>
+<li>Thorsten Ball, 設樂洋爾（訳）, (2018), Go言語でつくるインタプリタ, オライリーオライリージャパン</li>
+<li>遠藤侑介, (2017), RubyでつくるRuby ゼロから学びなおすプログラミング言語入門, ラムダノート</li>
+<li><a href="https://github.com/okuzawats/writing-an-interpreter-in-go">okuzawats/writing-an-interpreter-in-go</a>（最終アクセス日：2024年10月27日）</li>
+<li><a href="https://github.com/okuzawats/minruby-interpreter">okuzawats/minruby-interpreter</a>（最終アクセス日：2024年10月27日）</li>
+</ol>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>関数の評価のところが、どうしても正しく実装できませんでした。全体を何度も見直して、エラッタも読みましたが&hellip;。もう1回、「RubyでつくるRuby」にもチャレンジしてみようかなと思っています。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/goenv/">goenvでGoのバージョンを管理する</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+  <li><a href="/blog/leading-quality/">「LEADING QUALITY（リーディングクオリティ）」を読みました📚</a></li>
+  
+  <li><a href="/blog/fundamentals-of-software-architecture/">「ソフトウェアアーキテクチャの基礎」をアーキテクトのキャリアガイドとして読む</a></li>
+  
+  <li><a href="/blog/unit-testing-principles-practices-and-patterns/">「単体テストの考え方 / 使い方」を読みました📚</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

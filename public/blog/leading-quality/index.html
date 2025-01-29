@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>「LEADING QUALITY（リーディングクオリティ）」を読みました📚 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="「LEADING QUALITY（リーディングクオリティ）」を読みました📚" />
+  <meta name="description" content="「LEADING QUALITY（リーディングクオリティ）」を読んだ感想です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>「LEADING QUALITY（リーディングクオリティ）」を読みました📚</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2024-06-01' pubdate>
+        2024-06-01
+      </time>
+      
+    </p>
+  
+  <content>
+  <p><a href="https://www.kadokawa.co.jp/product/302309001510/">LEADING QUALITY（リーディングクオリティ）</a>を読みました。<a href="https://creators-note.chatwork.com/entry/books-that-impacted-me-in-2023">2023年に読んで衝撃を受けた、ソフトウェア開発に関する3冊の本を紹介してみる</a>でも紹介していたんですが、改めて本ブログにも感想を書いてみます。</p>
+<p>まず本書がどんな本かというと、<strong>組織の品質文化をリードする人のためのガイドブック</strong>です。いかにソフトウェアの品質保証を行うか？ということを扱った書籍は多々ありますが、本書はそれらと異なります。高品質なソフトウェアを構築して事業の成長を支えることのできる、組織の品質文化をいかに醸成するか？ということに焦点を当てています。</p>
+<h3 id="何故今品質なのか">何故、今「品質」なのか</h3>
+<p>ソフトウェア開発において、品質の重要性が年々高まっています。本書によれば、ソフトウェアが複雑化しているためテストの難易度が上がっている中で、今や品質（テスト）がビジネスの中心になっているとのこと。すなわち、品質が課題となって事業成長を阻害することがあるため、組織の「品質文化」を醸成していく必要があるということです。</p>
+<p>この組織の品質文化を醸成していく役割を担うのが、本書で言うところの品質リーダーであり、品質リーダーのためのガイドとなるのが本書です。</p>
+<h3 id="品質は何故難しいのか">品質は何故難しいのか</h3>
+<p>品質は、時間と共に変化していくため、定義するのが難しいものです。ゴールポストが動き続ける中でシュートを決めなければいけないサッカーのようなものです。本書では、このような動き続ける目標を追い続けることで、高品質なソフトウェアを継続的に提供することが可能となると指摘しています。</p>
+<p>品質が相対的なものであるという考え方は、ワインバーグの<a href="https://okuzawats.com/blog/what-weinburg-says-about-quality/">「品質は誰かにとっての価値である」</a>とも通じるものがありますが、さらに時間軸や事業の成長によっても目指すべき品質が変わっていくということです。</p>
+<p>ということは、時間軸や事業の成長に伴って、テスト戦略も成長させていく必要があるということです。本書でも、コンテキストに応じてテスト戦略を構築し、変わり続けるコンテキストにテスト戦略を適応させ続けることの重要性が指摘されています。</p>
+<h3 id="自動テストは銀の弾丸か">自動テストは銀の弾丸か</h3>
+<p>テストをスケールさせるために、自動テストは重要です。すべてを手動でテストしていたらテストがスケールしません。しかし、手動テストのすべてを自動テストに置き換えることはできないと本書は指摘します。</p>
+<p>テストには、2つの側面があると言います。</p>
+<ul>
+<li>調査
+<ul>
+<li>プロダクトに関わる情報を得るため、創造性を発揮して行うテスト。</li>
+<li>調査を行うことで、プロダクトに関わる情報が得られ、得られた情報を元に更なる探求が可能となる。</li>
+</ul>
+</li>
+<li>検証
+<ul>
+<li>期待通りであることをチェックする。</li>
+<li>検証で問題が発見されたら、調査を行う必要がある。</li>
+</ul>
+</li>
+</ul>
+<p>自動化できるテストは後者の検証であり、人間が創造性を発揮して行うテストは無くすことができない、という主張です。これはリグレッションを防ぐためのテストではなく、品質を向上するためのテストは人間がしなければならない、という意味でしょうか。畢竟、自動テストはツールのひとつに過ぎず、コンテキストに応じて適切なテストツールを選ぶということに過ぎないのでしょう。</p>
+<p>自動テストは銀の弾丸ではなく、コンテキストに応じてテスト戦略を変えていく中で選択可能な、ひとつの（強力な）ツールに過ぎないと言えます。</p>
+<h3 id="まとめ">まとめ</h3>
+<p>本書「LEADING QUALITY（リーディングクオリティ）」には他にも「品質ナラティブ」の話や「本番でのテスト」の話など、ソフトウェアの品質を向上していく上でとても興味深いことが書かれています。興味を持たれた方は是非読んでみて、感想を教えてください。待ってます。</p>
+<h3 id="reference">Reference</h3>
+<ol>
+<li>Ronald Cummings-John, 河原田政典（訳）, (2023), LEADING QUALITY, KADOKAWA</li>
+<li><a href="https://creators-note.chatwork.com/entry/books-that-impacted-me-in-2023">2023年に読んで衝撃を受けた、ソフトウェア開発に関する3冊の本を紹介してみる</a>（最終アクセス日：2024年6月1日）</li>
+<li><a href="https://okuzawats.com/blog/what-weinburg-says-about-quality/">「品質は誰かにとっての価値である」（G.M.ワインバーグ）</a>（最終アクセス日：2024年6月1日）</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/unit-testing-principles-practices-and-patterns/">「単体テストの考え方 / 使い方」を読みました📚</a></li>
+  
+  <li><a href="/blog/writing-an-interpreter-in-go/">「Go言語でつくるインタプリタ」を読みました📚</a></li>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+  <li><a href="/blog/what-weinburg-says-about-quality/">「品質は誰かにとっての価値である」（G.M.ワインバーグ）</a></li>
+  
+  <li><a href="/blog/fundamentals-of-software-architecture/">「ソフトウェアアーキテクチャの基礎」をアーキテクトのキャリアガイドとして読む</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>Androidアプリ開発入門2020 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="Androidアプリ開発入門2020" />
+  <meta name="description" content="フラー Advent Calendar 2020、25日目の記事「Androidアプリ開発入門2020」です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>Androidアプリ開発入門2020</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2020-12-25' pubdate>
+        2020-12-25
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>この記事は<a href="https://adventar.org/calendars/5034">フラー Advent Calendar 2020 - Adventar</a>の25日目の記事です。24日目の記事は、shmokmtによる「multipart をGoで扱ってみる」でした。</p>
+<p>さて、元気にAndroidアプリ開発してますか。僕はしてます。</p>
+<p>突然ですが、Androidアプリ開発をする上でつらいことの一つは、Androidアプリ開発の初心者にAndroidアプリ開発のことを教えることだと思ってます。まずはこの図を見てください。</p>
+<figure class="center"><img src="/images/android-in-2020-1.webp"><figcaption>
+      <h4>Fig-1 Android in 2020</h4>
+    </figcaption>
+</figure>
+
+<p>出典：<a href="https://speakerdeck.com/wasabeef/looking-back-on-this-android-year-in-preparation-for-next-year">来年に備えるために Android の知識を網羅する / Looking back on this Android year in preparation for next year. - Speaker Deck</a></p>
+<p>こちらのスライドは、GDG DevFest Tokyo 2019にてwasabeefさんが発表されていたスライドです。Androidアプリ開発でよく使われるライブラリやらツールやらを示しています。多いですね。多いだけならいいですが、RxJavaやDagger2など、単体で多くの学習コストを払わないといけない人がカジュアルに混ざっていて困ります。</p>
+<p>こちらのスライドは前述のとおり2019年のものですので、日進月歩のAndroidアプリ開発の世界ではちょっと内容が古いと言えます。このような混乱した状況がそう長く続くわけはありません。2020年の今はきっともっと楽になっているはずです。そうに違いない。</p>
+<figure class="center"><img src="/images/android-in-2020-2.webp"><figcaption>
+      <h4>Fig-2 Android Developers right now</h4>
+    </figcaption>
+</figure>
+
+<p>出典：<a href="https://twitter.com/KeithYokoma/status/1276404081070768130">(20) KeithYokomaさんはTwitterを使っています 「Android Developers right now 😂 https://t.co/vhQgjPJYqo」 / Twitter</a></p>
+<p>こちらの画像（ツイート）が投稿されたのが2020年6月26日です。見て分かるとおり&hellip;新たなラプトルが襲いかかってきており、状況は悪化しました。その他にも、Kotlin Android ExtensionsがDeprecatedになったり、Androidアプリエンジニアが退屈することはなさそうです。</p>
+<ul>
+<li><a href="https://speakerdeck.com/okuzawats/say-good-bye-to-kotlin-android-extensions">Say Good-Bye to Kotlin Android Extensions - Speaker Deck</a></li>
+</ul>
+<h2 id="androidアプリ開発入門2020">Androidアプリ開発入門2020</h2>
+<p>学ばなくてはならない概念が多く、今からAndroidアプリ開発に入門するのはしんどそうです。が、これからAndroidアプリ開発に入門しなければならない人もいるでしょう。そういった方のために、これから学ぶならこの辺から&hellip;という指針を自分なりに書いておきます。キーワードを散りばめておくので、検索しながら頑張ってください。大丈夫、Androidアプリ開発は楽しいから&hellip;。</p>
+<h3 id="kotlin">Kotlin</h3>
+<p>Androidアプリ開発で使うプログラミング言語といえば、Kotlinですね。Java（Android Java）も使えますが、Kotlinを使った方が生産性が高いでしょう。公式でサポートされていることもあり、Kotlinを選ばない理由はあまり見当たりません。</p>
+<p>この辺をやったり（自分はやったことないけど）、適当な入門書を読めばとりあえず書くことはできるでしょう。</p>
+<ul>
+<li><a href="https://developer.android.com/courses/kotlin-bootcamp/overview">Kotlin Bootcamp for Programmers  |  Training Courses</a></li>
+</ul>
+<p>もっとKotlinのことを詳しく学びたい人は、英語の電子書籍しかないと思いますが、Effective Kotlinを読むのがいいと思います。</p>
+<ul>
+<li><a href="https://leanpub.com/effectivekotlin/">Effective Kotlin by Marcin Moskała [Leanpub PDF/iPad/Kindle]</a></li>
+</ul>
+<p>CoroutinesとかFlowとかもついでにどこかで&hellip;。</p>
+<h3 id="livedata">LiveData</h3>
+<p>Lifecycle Awareなデータホルダーで、変更通知ができるやつです。後述するViewModelと一緒に使うと最も力を発揮します。MVVMでViewModelからViewに変更通知を流したりするのに使うことが多いでしょうか。Lifecycle Awareなので、正しく使えば比較的簡単にクラッシュしないアプリを作ることができるでしょう&hellip;。ちょっと癖があるといえばあるので、使いこなしましょう。</p>
+<ul>
+<li><a href="https://developer.android.com/topic/libraries/architecture/livedata">LiveData Overview  |  Android Developers</a></li>
+</ul>
+<h3 id="viewmodel">ViewModel</h3>
+<p>前述のLiveDataと一緒に使うといいやつです。Androidは、画面が回転する時など、割とカジュアルに画面が一度破棄されて再生成されるんですが、ViewModelを使うとその辺をいい感じにやってくれます。その名の通り、MVVMにおけるViewModelとして使うことが多いでしょうか。</p>
+<ul>
+<li><a href="https://developer.android.com/topic/libraries/architecture/viewmodel">ViewModel Overview  |  Android Developers</a></li>
+</ul>
+<h3 id="databinding">DataBinding</h3>
+<p>Android公式のDataBinding機構です。レイアウトに式を書けるようになるので、楽になったり（ならなかったり）します。また、自分でBindingAdapterを書いたりすると楽になったり（ならなかったり）します。ActivityとかFragmentとかで<code>binding.textView</code>みたいに書くとViewの取得をしてくれるのは偉いです。</p>
+<ul>
+<li><a href="https://developer.android.com/topic/libraries/data-binding">Data Binding Library  |  Android Developers</a></li>
+</ul>
+<p>Viewを取得したいだけなら、ViewBindingが使えます。</p>
+<ul>
+<li><a href="https://developer.android.com/topic/libraries/view-binding">View Binding  |  Android Developers</a></li>
+</ul>
+<p>Kotlinを使っているなら、wada811氏の作ったライブラリを一緒に使うと良いでしょう。</p>
+<ul>
+<li><a href="https://github.com/wada811/DataBinding-ktx">wada811/DataBinding-ktx: DataBinding-ktx make easy to use DataBinding.</a></li>
+<li><a href="https://github.com/wada811/ViewBinding-ktx">wada811/ViewBinding-ktx: ViewBinding-ktx make easy to use ViewBinding.</a></li>
+</ul>
+<h3 id="mvvm">MVVM</h3>
+<p>アプリのアーキテクチャとしては、こんな感じのMVVMっぽくしておくと無難な気がします。先述のLiveDataとViewModelも、MVVMで使うことで力を発揮してくれるものと思います。</p>
+<figure class="center"><img src="/images/android-in-2020-3.webp"><figcaption>
+      <h4>Fig-3 Android Architecture</h4>
+    </figcaption>
+</figure>
+
+<ul>
+<li><a href="https://developer.android.com/jetpack/guide">Guide to app architecture  |  Android Developers</a></li>
+</ul>
+<h3 id="retrofit">Retrofit</h3>
+<p>上の図にあるRetrofitですが、HTTPクライアントです。OkHttpや、JsonパーサのMoshi（最近は、kotlinx.serializationという選択肢もありますが&hellip;）と一緒に使うことが多いでしょう。</p>
+<ul>
+<li><a href="https://github.com/square/retrofit">square/retrofit: A type-safe HTTP client for Android and the JVM</a></li>
+<li><a href="https://github.com/square/okhttp">square/okhttp: Square’s meticulous HTTP client for the JVM, Android, and GraalVM.</a></li>
+<li><a href="https://github.com/square/moshi">square/moshi: A modern JSON library for Kotlin and Java.</a></li>
+</ul>
+<h3 id="room">Room</h3>
+<p>こちらも上の図にあるRoomですが、ローカルDBです。SQLiteのラッパーです。前述のLiveDataを一緒に使うと変更通知の実装がとても楽にできます。</p>
+<ul>
+<li><a href="https://developer.android.com/training/data-storage/room">Save data in a local database using Room  |  Android Developers</a></li>
+</ul>
+<p>このCodelabsが勉強になります。</p>
+<ul>
+<li><a href="https://developer.android.com/codelabs/android-training-livedata-viewmodel#0">Android fundamentals 10.1 Part A: Room, LiveData, and ViewModel</a></li>
+</ul>
+<h3 id="dagger-or-dagger-hilt-or-koin">Dagger or Dagger Hilt (or Koin)</h3>
+<p>DIは、Daggerを使うか、Koinを使うか、Dagger Hiltを使うかという感じだと思います。どれにすべきかは本日現在微妙だと思います。来年はDagger Hiltになるかもしれません（わかりません）。無難なのはDaggerという気はしますが（GoogleがForkして開発していて、Googleのドキュメントにも登場する）、学習コストが高いです。Dagger HiltはDaggerをAndroidで使いやすくしたやつです。yanzm氏のMaster of Daggerを読みましょう&hellip;。</p>
+<ul>
+<li><a href="https://booth.pm/ja/items/1577764">Master of Dagger あんざいゆき第2版【技術書典9 新刊】 - TechBooster - BOOTH</a></li>
+</ul>
+<h3 id="epoxy">Epoxy</h3>
+<p>リスト表示を楽にしてくれるやつです。GroupieというライブラリもありEpoxyと人気を二分していた気もしますが、今見たらLast Updateからしばらく時間が経っており、あまりメンテナンスされてないような&hellip;。EpoxyはAirbnbがちゃんとメンテナンスしている気がするので、Epoxyの方が無難だと思います。</p>
+<ul>
+<li><a href="https://github.com/airbnb/epoxy">airbnb/epoxy: Epoxy is an Android library for building complex screens in a RecyclerView</a></li>
+</ul>
+<h3 id="glide-or-coil">Glide or Coil</h3>
+<p>画像を読み込むやつはGlideかCoilでしょうか。PicasoとかFrescoとかもありますが、今はGlideかCoilかな&hellip;。Coilの方が読み込みが速いと聞いた気がする（未確認）。</p>
+<ul>
+<li><a href="https://github.com/bumptech/glide">bumptech/glide: An image loading and caching library for Android focused on smooth scrolling</a></li>
+<li><a href="https://github.com/coil-kt/coil">coil-kt/coil: Image loading for Android backed by Kotlin Coroutines.</a></li>
+</ul>
+<p>番外編でLottieを使うとアニメーションが楽です（Lottie形式で書き出せる人がいれば）。</p>
+<ul>
+<li><a href="https://github.com/airbnb/lottie-android">airbnb/lottie-android: Render After Effects animations natively on Android and iOS, Web, and React Native</a></li>
+</ul>
+<h2 id="まとめ">まとめ</h2>
+<p>あっ、最後の方はAndroid入門というよりライブラリの紹介になってしまった。まあいいや&hellip;。</p>
+<p>ということで、フラー Advent Calendar 2020も完走ですね。おつかれさまでした。また来年！</p>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/testing-sqlite/">[Android] SQLiteのインメモリデータベースで単体テストを書く</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt-and-testing-exception/">[Android] 単体テスト用の依存関係をHiltで解決し、かつ例外のテストを行いたい場合のパターン</a></li>
+  
+  <li><a href="/blog/upload-coverage-report-to-sonarcloud/">GitHub ActionsでSonarCloudにカバレッジをアップロードする</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/test-dependency-by-hilt/">[Android] 単体テスト用の依存関係をHiltで解決する</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>

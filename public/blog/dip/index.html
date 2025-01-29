@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <title>依存関係逆転の原則 | okuzawatsの日記</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer-when-downgrade" />
+  <meta name="Hatena::Bookmark" content="nocomment" />
+  <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+  <link rel="shortcut icon" href="http://localhost:1313/favicon.png" />
+  <meta name="title" content="依存関係逆転の原則" />
+  <meta name="description" content="フラー株式会社 Advent Calendar 2021の4日目の記事「依存関係逆転の原則」です。" />
+  <meta name="keywords" content="" />
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3F638E6YQ3">
+  </script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-3F638E6YQ3');
+  </script>
+  
+</head>
+<body>
+  <header><a href="/">
+<h1>okuzawatsの日記</h1>
+</a>
+<h2>モバイルアプリケーション開発の沼💀</h2>
+<nav><a href="/">About 💬</a> <a href="/blog/">Blog 🖋</a> <a href="/categories/android/">Android 🤖</a> <a href="/categories/kotlin/">Kotlin 📚</a> <a href="/categories/github-actions/">GitHub Actions 😺</a> <a href="/index.xml">RSS 📻</a> <a class="disabled" role="link" aria-disabled="true">English 🌏</a></nav>
+</header>
+  
+    <h1>依存関係逆転の原則</h1>
+    <div>
+  <h3>書いている人</h3>
+  <img src="/images/icon.webp" width="40">
+  <p>モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。</p>
+  <a href="https://twitter.com/okuzawats"><button>X(Twitter)</button></a>
+  <a href="https://github.com/okuzawats"><button>GitHub</button></a>
+</div>
+<hr>
+
+    <p>
+      <time datetime='2021-12-04' pubdate>
+        2021-12-04
+      </time>
+      
+    </p>
+  
+  <content>
+  <p>この記事はフラー株式会社 Advent Calendar 2021の4日目の記事です。</p>
+<ul>
+<li><a href="https://qiita.com/advent-calendar/2021/fuller-inc">フラー株式会社 Advent Calendar 2021のカレンダー | Advent Calendar 2021 - Qiita</a></li>
+</ul>
+<p>3日目の記事は <code>@masaya82</code> さんによる「<a href="https://qiita.com/masaya82/items/b55a86f9fc7175231d0b">スクリーンリーダー対応の備忘録 - Qiita</a>」でした。</p>
+<h2 id="依存関係逆転の原則">依存関係逆転の原則</h2>
+<p>書籍「Clean Architecture 達人に学ぶソフトウェアの構造と設計」（以下、Clean Architectureと呼ぶ。本記事でのClean Architectureとは、本書のことを指す）を読んでいると、中盤に差し掛かったところでSOLID原則の話が出てきます。</p>
+<p>SOLID原則の話の中で<strong>依存関係逆転の原則</strong>に触れられていますが、自分は長らくこの原則の意味がよく理解できませんでした。最近になって「もしかしてこういう意味なのかもしらん」というくらいの理解が得られてきましたのでテキストにしてみました、というのがこの記事です。</p>
+<h3 id="よく出てくる図">よく出てくる図</h3>
+<p>Clean Architectureには、こんな感じの図が出てきます。</p>
+<figure class="center"><img src="/images/dip-1.webp"><figcaption>
+      <h4>Fig-1 よく出てくる図（Robert、p.105より筆者作成）</h4>
+    </figcaption>
+</figure>
+
+<p>まずはこの図をよく見て&hellip;忘れます。</p>
+<h3 id="依存関係とは">依存関係とは</h3>
+<p>依存関係逆転の原則とは、依存関係が逆転するという原則です。では、依存関係とはなんでしょうか。</p>
+<p>難しく考える必要はありません。 <code>A</code> というモジュールから <code>B</code> というモジュールを使う、というだけのことを「 <code>A</code> が <code>B</code> に依存する」とお洒落に言い換えているだけです。</p>
+<p>具体的なコードにするとこういう状況です。 <code>A</code> から <code>B</code> を使っているので、 <code>A</code> は <code>B</code> に依存している、という状況です。この「 <code>A</code> は <code>B</code> に依存している」という関係を、 <code>A</code> と <code>B</code> の依存関係と呼びます。依存関係とは、つまるところこれだけのことです。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">a</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#179299">import</span> <span style="color:#fe640b">b.B</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">A</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">public</span> B b <span style="color:#04a5e5;font-weight:bold">=</span> <span style="color:#8839ef">new</span> B();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">public</span> <span style="color:#1e66f5">A</span>() {
+</span></span><span style="display:flex;"><span>    b.<span style="color:#1e66f5">hello</span>();
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">b</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">B</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">public</span> <span style="color:#d20f39">void</span> <span style="color:#1e66f5">hello</span>() {
+</span></span><span style="display:flex;"><span>    System.<span style="color:#1e66f5">out</span>.<span style="color:#1e66f5">println</span>(<span style="color:#40a02b">&#34;Hello!&#34;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="依存関係逆転前">依存関係逆転前</h3>
+<p>依存関係逆転の原則&hellip;と言うからには、逆転前の状態があるはずです。これがその図です。</p>
+<figure class="center"><img src="/images/dip-2.webp"><figcaption>
+      <h4>Fig-2 依存関係が逆転する前の図</h4>
+    </figcaption>
+</figure>
+
+<p>この図は、</p>
+<ol>
+<li>ApplicationがConcreteImpl（具象）に依存していること（実線の矢印）</li>
+<li>制御の流れがApplicationからConcreteImplに向いていること（波線の矢印）</li>
+</ol>
+<p>ということを表しています。また、ApplicationとConcreteImplの間に引かれた波線は、「抽象と具象の区切り」（Robert、p.105）です。</p>
+<p>ソースコードで表すと、こんな感じになります。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">application</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#179299">import</span> <span style="color:#fe640b">service.ConcreteImpl</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Application</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">public</span> ConcreteImpl service;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">service</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">ConcreteImpl</span> {
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="依存関係逆転">依存関係逆転</h3>
+<p>この図の依存関係を逆転させます。依存関係を逆転させるとは、ここでは実線の矢印を具象から抽象に向ける、ということを意味しています。</p>
+<figure class="center"><img src="/images/dip-3.webp"><figcaption>
+      <h4>Fig-3 依存関係が逆転した後の図</h4>
+    </figcaption>
+</figure>
+
+<p>抽象層にServiceというinterfaceを設け、ConcreteImplはServiceを実装します。それだけで、抽象から具象に向かっていた下向きの矢印が、具象から抽象への上向の矢印に変わりました。</p>
+<p>ソースコードで確認します。</p>
+<div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">application</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">Application</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#d20f39">public</span> Service service;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">application</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">interface</span> <span style="color:#df8e1d">Service</span> {
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#4c4f69;background-color:#eff1f5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#179299">package</span> <span style="color:#fe640b">service</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#179299">import</span> <span style="color:#fe640b">application.Service</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#d20f39">public</span> <span style="color:#d20f39">class</span> <span style="color:#df8e1d">ConcreteImpl</span> <span style="color:#d20f39">implements</span> Service {
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>import文に着目すると、beforeではApplicationがserviceパッケージに依存していたのに対し、afterではConcreteImplがapplicationパッケージに依存する、というように、依存の向きが入れ替わっていることがわかります。</p>
+<p>すなわち、</p>
+<ol>
+<li>具象が抽象に依存している（実線の矢印）</li>
+<li>制御の流れが抽象から具象に向いている（波線の矢印）</li>
+</ol>
+<p>というようになっています。</p>
+<p>この、実線（依存の方向）と波線（制御の流れ）の向きが反対方向に向いている状態が、依存関係が逆転した状態です。</p>
+<p>依存関係逆転の原則とは、畢竟、「<strong>ソースコードにあるすべての依存関係は、インターフェイスを挿入することで逆転可能</strong>」（Robert、p.69）ということを言っているに過ぎないのです（ちゃんとClean Architectureに書いてありました）。</p>
+<h3 id="まとめ">まとめ</h3>
+<p>駆け足で依存関係逆転の原則について説明してきましたが、じゃあ具体的にどう実装するのかとか、抽象と具象の区切りって何だとか、たくさんの疑問符が頭の中を駆け巡っているかもしれません。その答えは&hellip;皆さんの目で確かめてください。</p>
+<p>ということで、5日目の記事は <code>@m-coder</code> さんによる「<a href="https://note.com/m_coder/n/n74901d195d83">DroidKaigi2021に登壇した話｜m-coder｜note</a>」です。</p>
+<h3 id="参考文献">参考文献</h3>
+<ol>
+<li><a href="https://www.amazon.co.jp/dp/4048930656">Clean Architecture 達人に学ぶソフトウェアの構造と設計 | Robert C.Martin, 角 征典, 高木 正弘 |本 | 通販 | Amazon</a>（最終アクセス日：2021年12月1日）</li>
+<li><a href="https://ja.wikipedia.org/wiki/%E4%BE%9D%E5%AD%98%E6%80%A7%E9%80%86%E8%BB%A2%E3%81%AE%E5%8E%9F%E5%89%87">依存性逆転の原則 - Wikipedia</a>（最終アクセス日：2021年12月1日）</li>
+</ol>
+
+  </content>
+  
+
+<h2>Related</h2>
+<ul>
+  
+  <li><a href="/blog/get-your-hands-dirty-on-clean-architecture/">「手を動かしてわかるクリーンアーキテクチャ」を読みました📚</a></li>
+  
+  <li><a href="/blog/uniflow/">[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄</a></li>
+  
+  <li><a href="/blog/square-violate-lsp/">何故、Squareクラスはリスコフの置換原則（LSP）に違反するのか</a></li>
+  
+  <li><a href="/blog/do-not-abuse-short-circuit/">短絡評価を乱用しないでください🙅‍♂️</a></li>
+  
+  <li><a href="/blog/eventbus/">[Android] EventBusの思い出🚌</a></li>
+  
+</ul>
+
+
+
+  <footer><hr>
+<div>
+  <p><small>当サイトではGoogle Analyticsを使用しています。</small></p>
+  <p><small>当サイトでの発言は筆者個人の見解であり、所属する組織の見解を代表するものではありません。</small></p>
+  <p><small>© 2019 okuzawats | Made with <a href="https://gohugo.io/">Hugo</a>, <a href="https://newcss.net/">new.css</a>, and <a href="https://themes.gohugo.io/themes/hugo-bearcub/">ᕦʕ •ᴥ•ʔᕤ Bear Cub</a></small></p>
+</div>
+</footer>
+</body>
+</html>
