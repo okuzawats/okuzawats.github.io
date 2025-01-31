@@ -6,3 +6,5 @@ draft: false
 ---
 
 Hello World!
+
+{{< figure src="/images/barocco.webp" title="Fig-1 Mistel Barocco MD770RGB" class="center" >}}
