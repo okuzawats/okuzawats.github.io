@@ -24,34 +24,22 @@ copyright = '© 2019 okuzawats'
 
 [menu]
   [[menu.main]]
-  name = "About 💬"
+  name = "About Me🤖"
   identifier = "about"
   weight = 1
   url = "/"
 
   [[menu.main]]
-  name = "Blog 🖋"
+  name = "Blog 📝"
   identifier = "blog"
   weight = 100
   url = "/blog/"
 
   [[menu.main]]
-  name = "Android 🤖"
+  name = "Slide 🗣️"
   identifier = "android"
   weight = 200
-  url = "/categories/android/"
-
-  [[menu.main]]
-  name = "Kotlin 📚"
-  identifier = "kotlin"
-  weight = 201
-  url = "/categories/kotlin/"
-
-  [[menu.main]]
-  name = "GitHub Actions 😺"
-  identifier = "github-actions"
-  weight = 202
-  url = "/categories/github-actions/"
+  url = "/slide/"
 
   [[menu.main]]
   name = "RSS 📻"
