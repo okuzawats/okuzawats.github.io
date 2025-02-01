@@ -18,7 +18,7 @@ brew install hugo
 
 ## CI/CD環境
 
-GitHub Actionsを用いて、CI/CDを行っています。GitHub ActionsでHugoのビルドを実行した上で、GitHub Pagesに配信しています。
+GitHub Actionsを用いて、CI/CDを行っています。GitHub ActionsでHugoのビルドを実行し、GitHub Pagesに配信しています。
 
 詳細は設定ファイルを参照してください。
 
