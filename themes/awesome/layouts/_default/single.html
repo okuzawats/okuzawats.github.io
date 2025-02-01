@@ -1,0 +1,20 @@
+{{ define "main" }}
+  {{ if not .Params.menu }}
+    <h1>{{ .Title }}</h1>
+    {{ if (ne .Params.disable_profile true) -}}
+      {{ partial "profile.html" . }}
+    {{- end }}
+    <p>
+      <time datetime='{{ .Date.Format "2006-01-02" }}' pubdate>
+        {{ .Date.Format (default "2006-01-02" .Site.Params.dateFormat) }}
+      </time>
+      {{ with .Params.author }}· {{.}}{{ end }}
+    </p>
+  {{ end }}
+  <content>
+  {{ .Content }}
+  </content>
+  {{ if (ne .Params.disable_profile true) -}}
+    {{ partial "also.html" . }}
+  {{- end }}
+{{ end }}

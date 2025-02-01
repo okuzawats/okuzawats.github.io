@@ -1,0 +1,76 @@
+baseURL = "https://okuzawats.com/"
+theme = "awesome"
+languageCode = "ja-jp"
+DefaultContentLanguage = "ja"
+copyright = '© 2019 okuzawats'
+
+[params]
+  author = "okuzawats"
+  favicon = "favicon.png"
+
+[languages]
+  [languages.en]
+    languageName = "English"
+    weight = 10
+    title = "okuzawats blog"
+    [languages.en.params]
+      description = "Mobile Application Development Swamp💀"
+  [languages.ja]
+    languageName = "Japanese"
+    weight = 20
+    title = "okuzawatsの日記"
+    [languages.ja.params]
+      description = "モバイルアプリケーション開発の沼💀"
+
+[menu]
+  [[menu.main]]
+  name = "About 💬"
+  identifier = "about"
+  weight = 1
+  url = "/"
+
+  [[menu.main]]
+  name = "Blog 🖋"
+  identifier = "blog"
+  weight = 100
+  url = "/blog/"
+
+  [[menu.main]]
+  name = "Android 🤖"
+  identifier = "android"
+  weight = 200
+  url = "/categories/android/"
+
+  [[menu.main]]
+  name = "Kotlin 📚"
+  identifier = "kotlin"
+  weight = 201
+  url = "/categories/kotlin/"
+
+  [[menu.main]]
+  name = "GitHub Actions 😺"
+  identifier = "github-actions"
+  weight = 202
+  url = "/categories/github-actions/"
+
+  [[menu.main]]
+  name = "RSS 📻"
+  identifier = "rss"
+  weight = 300
+  url = "/index.xml"
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[related]
+  includeNewer = true
+  threshold = 80
+  toLower = false
+  [[related.indices]]
+    name = "categories"
+    weight = 100
+
+[markup]
+  [markup.highlight]
+    style = "catppuccin-latte"
