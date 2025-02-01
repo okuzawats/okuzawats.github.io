@@ -30,19 +30,13 @@ copyright = '© 2019 okuzawats'
   url = "/"
 
   [[menu.main]]
-  name = "Blog 📝"
+  name = "Blog📝"
   identifier = "blog"
   weight = 100
   url = "/blog/"
 
   [[menu.main]]
-  name = "Slide 🗣️"
-  identifier = "android"
-  weight = 200
-  url = "/slide/"
-
-  [[menu.main]]
-  name = "RSS 📻"
+  name = "RSS📻"
   identifier = "rss"
   weight = 300
   url = "/index.xml"
