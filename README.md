@@ -35,3 +35,9 @@ GitHub Actionsを用いて、CI/CDを行っています。GitHub ActionsでHugo�
 adr-toolsを用いてADRの管理を行います。
 
 - [npryce/adr-tools: Command-line tools for working with Architecture Decision Records](https://github.com/npryce/adr-tools)
+
+## CSSフレームワーク
+
+new.cssを使用しています。
+
+- [new.css](https://newcss.net/)
