@@ -29,3 +29,15 @@ GitHub Actionsを用いて、CI/CDを行っています。GitHub ActionsでHugo�
 ドメインの設定については以下のドキュメントを参照。
 
 - [ドメインの設定 - okuzawatsのScrapbox](https://scrapbox.io/okuzawats/%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E3%81%AE%E8%A8%AD%E5%AE%9A)（要ログイン）
+
+## ADR（Architecture Decision Record）
+
+adr-toolsを用いてADRの管理を行います。
+
+- [npryce/adr-tools: Command-line tools for working with Architecture Decision Records](https://github.com/npryce/adr-tools)
+
+## CSSフレームワーク
+
+new.cssを使用しています。
+
+- [new.css](https://newcss.net/)
