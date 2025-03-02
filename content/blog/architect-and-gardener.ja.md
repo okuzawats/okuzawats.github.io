@@ -1,7 +1,7 @@
 ---
 title: "アーキテクトは庭師のようにふるまう"
 date: 2025-02-21T16:00:00+09:00
-description: ""
+description: "「ソフトウェアアーキテクトは庭師のように振る舞うべき」とのことなので、庭師の仕事を調べてみました。"
 categories: ["Career"]
 draft: false
 ---
