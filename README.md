@@ -41,11 +41,3 @@ adr-toolsを用いてADRの管理を行います。
 new.cssを使用しています。
 
 - [new.css](https://newcss.net/)
-
-## ビールをおごる🍻
-
-- [Pure CSS responsive "Fork me on GitHub" ribbon](https://codepo8.github.io/css-fork-on-github-ribbon/)
-
-ビールの色はDeep Goldです。以下のサイトを参照しています。
-
-- [SRM - BrewNote](https://brewnote.tokyo/kb/srm/)
