@@ -20,7 +20,7 @@
 
 ## 登壇資料🎤
 
-- [Chatwork Android版アプリ 障害対応の舞台裏](https://www.docswell.com/s/okuzawats/K22EM6-incident-management)（[【Qiita Bash】挑戦の軌跡をたどるAndroid開発の舞台裏](https://increments.connpass.com/event/344818/)）
+- [Chatwork Android版アプリ 障害対応の舞台裏](https://www.docswell.com/s/okuzawats/K22EM6-incident-management)（[【Qiita Bash】挑戦の軌跡をたどるAndroid開発の舞台裏](https://increments.connpass.com/event/344818/)）（2025年）
 - [Androidアプリのモジュール分割における:x:commonを考える](https://speakerdeck.com/okuzawats/androidapurinomoziyurufen-ge-niokeru-x-commonwokao-eru)（[Ebisu.mobile #8 大忘年会 STORES kubell Kyash asken](https://hey.connpass.com/event/335971/)）（2024年）
 - [「Chatwork」Android版アプリを 支える単体テストの現在](https://speakerdeck.com/okuzawats/chatwork-androidban-apuriwo-zhi-erudan-ti-tesutonoxian-zai)（[kubell.mobile #2 Androidアプリの単体テスト](https://chatwork.connpass.com/event/337364/)）（2024年）
 - [カンファレンス参加をいかに正当化するか](https://speakerdeck.com/okuzawats/kanhuarensucan-jia-woikanizheng-dang-hua-suruka)（[DroidKaigi.onCompletion { 2024@Online }](https://yumemi.connpass.com/event/329691/)）（2024年）
@@ -36,7 +36,7 @@
 
 ## 執筆🖊️
 
-- [Androidアプリ開発部で合宿を行い、技術的負債についてみんなで考えました〜2024年冬〜](https://creators-note.chatwork.com/entry/android-training-camp-2024)
+- [Androidアプリ開発部で合宿を行い、技術的負債についてみんなで考えました〜2024年冬〜 - kubell Creato's Note](https://creators-note.chatwork.com/entry/android-training-camp-2024)
 - [NANDからCPUを作る（前編）](https://creators-note.chatwork.com/entry/nand-to-cpu)
 - [2023年に読んで衝撃を受けた、ソフトウェア開発に関する3冊の本を紹介してみる - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/books-that-impacted-me-in-2023)
 - [「読みやすいコードのガイドライン」の著者・石川宗寿さんをお招きして、コードの読みやすさについての勉強会を開催しました📝 - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/code-readability)
