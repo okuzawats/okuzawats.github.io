@@ -40,7 +40,7 @@ draft: false
 
 またポエムを書いてしまいました。
 
-## References
+## Reference
 
 1. 伊藤元重, (2014), 「経済を見る3つの目」, 日本経済新聞出版社社
 2. 伊藤公平, (2022), [2022年度大学院入学式 式辞](https://www.keio.ac.jp/ja/about/president/speech/text-2022-0404.html)（最終アクセス日：2025年6月7日）
