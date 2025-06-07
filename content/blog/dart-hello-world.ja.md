@@ -37,7 +37,7 @@ draft: false
 % asdf set dart 3.8.1
 ```
 
-`.tool-versions` が作成されて、その中身はこんな感じになってます。
+`.tool-versions` が作成されて、その中身はこんな感じになってます。 `.tool-versions` の挙動については `asdf` のドキュメントを参照してください。
 
 ```
 dart 3.8.1
@@ -45,7 +45,7 @@ dart 3.8.1
 
 ## DartでHello World
 
-Dart SDKをインストールできたので、Hello Worldします。こんな感じのコードを `helloworld.dart` として保存します。適当に書いたんですが、[Introduction to Dart](https://dart.dev/language)と同一のコードでした。
+Dart SDKをインストールできたので、Hello Worldします。こんな感じのコードを `helloworld.dart` として保存します。適当に書きましたが、[Introduction to Dart](https://dart.dev/language)と同一のコードでした。
 
 ```dart
 void main() {
@@ -53,7 +53,7 @@ void main() {
 }
 ```
 
-Dartは、エントリーポイントとして `main()` 関数を要求します。また、その返り血の型は `void` でなければなりません。
+Dartは、エントリーポイントとして `main()` 関数を要求します。また、その返り血の型は `void` でなければなりません。インデントが半角スペース2つなのは自分好みです。
 
 上記のコードを実行します。以下のように実行できます。
 
