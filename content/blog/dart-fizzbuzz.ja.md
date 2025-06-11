@@ -6,7 +6,7 @@ categories: ["Dart"]
 draft: false
 ---
 
-Dartを味わうため、FizzBuzzを書いていきます。
+FizzBuzzを書いてDartを味わっていきます。
 
 まずは引数として整数 `n` を受け取り、整数 `n` に対するFizzBuzzを返す関数を実装します。結論から言うとこんな感じで実装しました。
 
