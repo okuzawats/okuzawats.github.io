@@ -42,7 +42,7 @@ String fizzBuzz(int n) {
 > 
 > [DO follow a consistent rule for var and final on local variables](https://dart.dev/effective-dart/usage#do-follow-a-consistent-rule-for-var-and-final-on-local-variables)
 
-次の行では、 `if (n % 3 == 0) s += 'Fizz';` で `s` に文字列を再代入しています。Dartの[if](https://dart.dev/language/branches#if)には特に説明を見つけられませんでしたが、 `if (Boolean) Statement` というシグネチャであれば良く、真偽値がtrueの場合に実行されるStatementはブロック `{}` で囲っても囲わなくても良さそうです。個人的には、今回のコードのようにブロックを省略せず、ブロックで囲んだ方がベターだとは思います（[というような話を3年ほど前にしました](https://speakerdeck.com/okuzawats/kotlinnoifwoai-deru)）。
+次の行では、 `if (n % 3 == 0) s += 'Fizz';` で `s` に文字列を再代入しています。Dartの[if](https://dart.dev/language/branches#if)には特に説明を見つけられませんでしたが、 `if (Boolean) Statement` というシグネチャであれば良く、真偽値がtrueの場合に実行されるStatementはブロック `{}` で囲っても囲わなくても良さそうです。個人的には、今回のコードで行なっているようなブロックの省略をせず、ブロックで囲んだ方がベターだとは思います（[というような話を3年ほど前にしました](https://speakerdeck.com/okuzawats/kotlinnoifwoai-deru)）。
 
 最後の `return s.isNotEmpty ? s : '$n';` も味わい深いです。まず `?` 演算子ですが、これはいわゆる三項演算子です。 `Boolean ? Left Expression : Right Expression` というシグネチャで、真偽値がtrueであればLeft Expressionの評価値を、falseであればRight Expressionの評価値を返します。また、 `'$n'` の記法は文字列テンプレートで、ここでは `n` を文字列に展開しています。
 
