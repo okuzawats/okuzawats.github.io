@@ -64,9 +64,9 @@ void main() {
 
 まずは `import 'src/fizzbuzz.dart';` で、先ほど書いた `fizzBuzz` 関数を参照できるようにしています。この関数を `src/fizzbuzz.dart` に置いているので、このようなimportになっています。
 
-次に `main` 関数ですが、[DartでHello World](https://okuzawats.com/blog/dart-hello-world/)で書いたようにエントリーポイントとなります。
+次に `main` 関数ですが、[DartでHello World](https://okuzawats.com/blog/dart-hello-world/)で書いたようにエントリーポイントとなる関数です。
 
-以下の部分はDartの特徴が表れる部分かと思います。これは1から100までのストリームを作っている処理です。まずList#generateを使ってイテラブルであるListを作り、さらにString#fromIterableでストリームを作っています。 `1, 2, ..., 100` までの整数値のストリームを返します。
+以下の部分はDartの特徴が表れる部分かと思います。これは1から100までの整数値のストリームを作っている処理です。まずList#generateを使ってイテラブルであるListを作り、さらにString#fromIterableでストリームを作っています。 `1, 2, ..., 100` までの整数値のストリームを返します。
 
 ```dart
   Stream.fromIterable(
