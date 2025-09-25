@@ -1,5 +1,5 @@
 ---
-title: "GitHub ActionsでSonarCloudにカバレッジをアップロードする"
+title: "GitHub ActionsでSonarCloudにカバレッジをアップロードする😺"
 date: 2023-09-18T22:48:21+09:00
 description: "GitHub ActionsからSonarCloudにカバレッジをアップロードする方法です。JaCoCoを用いたAndroidのカバレッジレポートの例を書いています。"
 categories: ["Android", "GitHub Actions"]

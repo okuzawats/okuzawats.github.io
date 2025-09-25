@@ -1,5 +1,5 @@
 ---
-title: "DroidKaigi 2023に行ってきた"
+title: "DroidKaigi 2023に行ってきた🤖"
 date: 2023-09-15T22:20:25+09:00
 description: "DroidKaigi 2023に行ってきました。"
 categories: ["Other"]
