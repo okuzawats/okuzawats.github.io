@@ -2,7 +2,7 @@
 
 {{< figure src="/images/icon.webp" width="40" >}}
 
-モバイルアプリケーションアーキテクトとして働いています。モバイルアプリケーションのアーキテクチャ、自動テスト、CI/CDに興味があります。茨城県つくば市在住。好きなヨーグルトはチチヤスヨーグルト。
+茨城県つくば市在住。好きなヨーグルトはチチヤスヨーグルト。モバイルアプリケーションに興味があります。
 
 ## 著書📚
 
@@ -37,11 +37,11 @@
 ## 執筆🖊️
 
 - [Androidアプリ開発部で合宿を行い、技術的負債についてみんなで考えました〜2024年冬〜 - kubell Creato's Note](https://creators-note.chatwork.com/entry/android-training-camp-2024)
-- [NANDからCPUを作る（前編）](https://creators-note.chatwork.com/entry/nand-to-cpu)
-- [2023年に読んで衝撃を受けた、ソフトウェア開発に関する3冊の本を紹介してみる - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/books-that-impacted-me-in-2023)
-- [「読みやすいコードのガイドライン」の著者・石川宗寿さんをお招きして、コードの読みやすさについての勉強会を開催しました📝 - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/code-readability)
-- [カンバンを導入した、Androidプラットフォームチームの働き方🪧 - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/how-android-platform-team-works)
-- [Chatworkに入社して8ヶ月で行なった、Chatwork Android版のライブラリ管理を楽にするための取り組み⚙️ - Chatwork Creator's Note](https://creators-note.chatwork.com/entry/ease-android-app-maintenance)
+- [NANDからCPUを作る（前編） - kubell Creator's Note](https://creators-note.chatwork.com/entry/nand-to-cpu)
+- [2023年に読んで衝撃を受けた、ソフトウェア開発に関する3冊の本を紹介してみる - kubell Creator's Note](https://creators-note.chatwork.com/entry/books-that-impacted-me-in-2023)
+- [「読みやすいコードのガイドライン」の著者・石川宗寿さんをお招きして、コードの読みやすさについての勉強会を開催しました📝 - kubell Creator's Note](https://creators-note.chatwork.com/entry/code-readability)
+- [カンバンを導入した、Androidプラットフォームチームの働き方🪧 - kubell Creator's Note](https://creators-note.chatwork.com/entry/how-android-platform-team-works)
+- [Chatworkに入社して8ヶ月で行なった、Chatwork Android版のライブラリ管理を楽にするための取り組み⚙️ - kubell Creator's Note](https://creators-note.chatwork.com/entry/ease-android-app-maintenance)
 
 ## メディア📹
 
@@ -69,7 +69,7 @@
 
 ## 経歴🦄
 
-- Androidアプリエンジニア（モバイルアプリケーションアーキテクト）＠Chatwork株式会社（2022年9月〜現在）
+- Androidアプリエンジニア（モバイルアプリケーションアーキテクト）＠Chatwork株式会社（2022年9月〜2025年8月）
 - Androidアプリエンジニア（テックリード）＠フラー株式会社（2019年8月〜2022年8月）
 - 他
 
