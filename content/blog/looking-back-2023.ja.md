@@ -1,16 +1,16 @@
 ---
-title: "2023年の振り返り"
+title: "2023年のふりかえり"
 date: 2023-12-25T22:00:00+09:00
-description: "2023年にやったことを振り返ります。"
+description: "2023年にやったことをふりかえります。"
 categories: ["Life"]
 draft: false
 ---
 
-今年も残すところ数日となりました。恒例となりつつある、毎年の振り返りの記事です。今年はダイジェストでお送りいたします。
+今年も残すところ数日となりました。恒例となりつつある、毎年のふりかえりの記事です。今年はダイジェストでお送りいたします。
 
-- [2022年の振り返り](https://okuzawats.com/blog/looking-back-2022/)
-- [2021年の振り返り](https://okuzawats.com/blog/looking-back-2021/)
-- [2020年の振り返り](https://okuzawats.com/blog/looking-back-2020/)
+- [2022年のふりかえり](https://okuzawats.com/blog/looking-back-2022/)
+- [2021年のふりかえり](https://okuzawats.com/blog/looking-back-2021/)
+- [2020年のふりかえり](https://okuzawats.com/blog/looking-back-2020/)
 
 ## 仕事
 

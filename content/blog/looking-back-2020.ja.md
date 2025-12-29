@@ -1,7 +1,7 @@
 ---
-title: "2020年の振り返り"
+title: "2020年のふりかえり"
 date: 2020-12-13T21:21:42+09:00
-description: "2020年にやったことを振り返ります。"
+description: "2020年にやったことをふりかえります。"
 categories: ["Life"]
 aliases:
     - /posts/looking-back-2020/

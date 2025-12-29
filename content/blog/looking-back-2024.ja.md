@@ -1,17 +1,17 @@
 ---
-title: "2024年の振り返り"
+title: "2024年のふりかえり"
 date: 2024-12-30T16:39:00+09:00
-description: "2024年にやったことを振り返ります。"
+description: "2024年にやったことをふりかえります。"
 categories: ["Life"]
 draft: false
 ---
 
-年末恒例の振り返りです。このブログも開設から5年が経ちました。
+年末恒例のふりかえりです。このブログも開設から5年が経ちました。
 
-- [2023年の振り返り](https://okuzawats.com/blog/looking-back-2023/)
-- [2022年の振り返り](https://okuzawats.com/blog/looking-back-2022/)
-- [2021年の振り返り](https://okuzawats.com/blog/looking-back-2021/)
-- [2020年の振り返り](https://okuzawats.com/blog/looking-back-2020/)
+- [2023年のふりかえり](https://okuzawats.com/blog/looking-back-2023/)
+- [2022年のふりかえり](https://okuzawats.com/blog/looking-back-2022/)
+- [2021年のふりかえり](https://okuzawats.com/blog/looking-back-2021/)
+- [2020年のふりかえり](https://okuzawats.com/blog/looking-back-2020/)
 
 ## 仕事
 
