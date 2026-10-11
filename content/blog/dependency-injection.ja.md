@@ -1,8 +1,8 @@
 ---
-title: "何故、依存性注入（DI）するのか"
+title: "[設計] 依存性注入（DI）"
 date: 2022-01-24T22:34:00+09:00
 description: "依存性注入（DI）パターンを用いる理由について書きます。"
-categories: ["Design"]
+categories: ["設計"]
 draft: false
 aliases:
     - /blog/why-we-inject-dependency/

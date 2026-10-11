@@ -1,8 +1,8 @@
 ---
-title: "設計原則"
+title: "[設計] 設計原則"
 date: 2022-03-31T05:59:00+09:00
 description: "「設計原則」についてです。"
-categories: ["Design"]
+categories: ["設計"]
 draft: false
 ---
 

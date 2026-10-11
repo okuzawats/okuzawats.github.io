@@ -1,8 +1,8 @@
 ---
-title: "依存関係逆転の原則"
+title: "[設計] 依存関係逆転の原則"
 date: 2021-12-04T00:00:00+09:00
 description: "フラー株式会社 Advent Calendar 2021の4日目の記事「依存関係逆転の原則」です。"
-categories: ["Design"]
+categories: ["設計"]
 aliases:
     - /posts/dip/
 draft: false

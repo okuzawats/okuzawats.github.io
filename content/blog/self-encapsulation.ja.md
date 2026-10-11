@@ -1,8 +1,8 @@
 ---
-title: "自己カプセル化"
+title: "[設計] 自己カプセル化"
 date: 2022-06-05T06:28:00+09:00
 description: "自己カプセル化についてです。"
-categories: ["Design"]
+categories: ["設計"]
 draft: false
 ---
 
