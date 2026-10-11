@@ -1,5 +1,5 @@
 ---
-title: "[Android] Clean Architecture の理論と実装"
+title: "[Android] Clean Architectureの理論と実装"
 date: 2022-11-06T22:38:00+09:00
 description: "Androidアプリ開発でのClean Architectureの理論と実装に関するアイデアを示します。"
 categories: ["Android", "Design"]

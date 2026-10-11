@@ -1,7 +1,7 @@
 ---
-title: "Mockk によるモック入門"
+title: "Mockkによるモック入門"
 date: 2022-10-22T22:50:00+09:00
-description: "Kotlin 製のモックライブラリ MockK の使い方の紹介です。"
+description: "Kotlin製のモックライブラリMockKの使い方の紹介です。"
 categories: ["Android", "Test"]
 draft: false
 ---

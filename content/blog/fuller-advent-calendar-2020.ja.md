@@ -1,5 +1,5 @@
 ---
-title: "Androidアプリ開発入門2020"
+title: "Androidアプリ開発入門 in 2020年"
 date: 2020-12-25T00:00:00+09:00
 description: "フラー Advent Calendar 2020、25日目の記事「Androidアプリ開発入門2020」です。"
 categories: ["Android"]

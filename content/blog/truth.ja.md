@@ -1,7 +1,7 @@
 ---
-title: "Truth によるアサーション入門"
+title: "Truthによるアサーション入門"
 date: 2022-10-08T10:30:00+09:00
-description: "Google が中心となって開発している、Java / Android 向けのアサーションライブラリ Truth の使い方の紹介です。"
+description: "Googleが中心となって開発している、Java / Android 向けのアサーションライブラリTruthの使い方の紹介です。"
 categories: ["Android", "Test"]
 draft: false
 ---

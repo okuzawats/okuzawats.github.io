@@ -1,5 +1,5 @@
 ---
-title: "[Android] SnackbarをBuilderパターンっぽく表示したい"
+title: "[Android] SnackbarをBuilderパターンっぽく表示する"
 date: 2022-01-10T22:44:00+09:00
 description: "AndroidのSnackbarをBuilderパターンっぽく表示する方法を模索した時のメモです。"
 categories: ["Android"]
