@@ -1,8 +1,8 @@
 ---
-title: "何故、Squareクラスはリスコフの置換原則（LSP）に違反するのか"
+title: "[設計] リスコフの置換原則（LSP）"
 date: 2023-04-30T15:25:53+09:00
 description: "Squareクラスがリスコフの置換原則（LSP）に違反している理由について考えます。"
-categories: ["Design"]
+categories: ["設計"]
 draft: false
 ---
 
