@@ -1,5 +1,5 @@
 ---
-title: "[Android] EventBusの思い出🚌"
+title: "[Android] EventBus🚌"
 date: 2022-12-23T00:00:00+09:00
 description: "フラー株式会社 Advent Calendar 2022の23日目の記事「EventBusの思い出🚌」です。"
 categories: ["Android", "Design"]

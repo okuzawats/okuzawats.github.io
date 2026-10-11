@@ -1,5 +1,5 @@
 ---
-title: "「Advanced Android App Architecture」を読みました📚"
+title: "「Advanced Android App Architecture」を読んだ📚"
 date: 2022-01-31T22:10:37+09:00
 description: "「Advanced Android App Architecture」を読んだ感想です。"
 categories: ["Android", "Reading", "Design"]

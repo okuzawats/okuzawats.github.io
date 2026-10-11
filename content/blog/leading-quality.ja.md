@@ -1,5 +1,5 @@
 ---
-title: "「LEADING QUALITY（リーディングクオリティ）」を読みました📚"
+title: "「LEADING QUALITY（リーディングクオリティ）」を読んだ📚"
 date: 2024-06-01T05:27:00+09:00
 description: "「LEADING QUALITY（リーディングクオリティ）」を読んだ感想です。"
 categories: ["Quality", "Test", "Reading"]

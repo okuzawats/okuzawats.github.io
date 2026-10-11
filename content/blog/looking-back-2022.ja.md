@@ -29,7 +29,7 @@ draft: false
   -[[Kotlin] sealed classに親しむ](https://okuzawats.com/blog/kotlin-sealed-class/)
   -[[Kotlin] 「何もしない」関数をいい感じに書きたい](https://okuzawats.com/blog/kotlin-no-operation-function/)
   -[何故、依存性注入（DI）するのか](https://okuzawats.com/blog/dependency-injection/)
-  -[[Architecture] Advanced Android App Architectureを読みました](https://okuzawats.com/blog/advanced-android-app-architecture/)
+  -[[Architecture] Advanced Android App Architectureを読んだ](https://okuzawats.com/blog/advanced-android-app-architecture/)
 
 ## 2022年2月
 
