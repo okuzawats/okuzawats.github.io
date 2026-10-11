@@ -37,11 +37,14 @@
 - [10年モノのAndroidアプリのコード品質を改善していく、3つの取り組み](https://speakerdeck.com/okuzawats/4de89f92-6dff-4d77-8701-10882ff27be7)（2023年）
 - [Androidアプリのモジュール分割における:x:commonを考える](https://speakerdeck.com/okuzawats/androidapurinomoziyurufen-ge-niokeru-x-commonwokao-eru)（2024年）
 
-#### 技術ブログへの寄稿
+#### 技術記事
 
 - [Androidアプリ開発部で合宿を行い、技術的負債についてみんなで考えました〜2024年冬〜](https://creators-note.chatwork.com/entry/android-training-camp-2024)
 - [カンバンを導入した、Androidプラットフォームチームの働き方](https://creators-note.chatwork.com/entry/how-android-platform-team-works)
 - [Chatworkに入社して8ヶ月で行なった、Chatwork Android版のライブラリ管理を楽にするための取り組み](https://creators-note.chatwork.com/entry/ease-android-app-maintenance)
+- [Remote Configの力をもっと引き出す](https://qiita.com/okuzawats/items/c93ec0b04c453ef76ca3)
+- [Android クリーンアーキテクチャ ヒッチハイク・ガイド](https://zenn.dev/okuzawats/books/android-clean-architecture)
+- [Android ユニットテスト ヒッチハイク・ガイド](https://zenn.dev/okuzawats/books/android-unit-testing)
 
 #### 書籍レビュー
 
@@ -71,3 +74,7 @@
 
 - [GitHub](https://github.com/okuzawats)
 - [X（Twitter）](https://twitter.com/okuzawats)
+- [Speaker Deck](https://speakerdeck.com/okuzawats)
+- [Docswell](https://www.docswell.com/user/okuzawats)
+- [Zenn](https://zenn.dev/okuzawats)
+- [Qiita](https://qiita.com/okuzawats)
