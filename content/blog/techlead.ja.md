@@ -1,8 +1,8 @@
 ---
-title: "テックリードとは"
+title: "[キャリア] テックリードとは"
 date: 2022-08-02T22:07:22+09:00
 description: "テックリードの役割について考えます。"
-categories: ["Career"]
+categories: ["キャリア"]
 draft: false
 ---
 

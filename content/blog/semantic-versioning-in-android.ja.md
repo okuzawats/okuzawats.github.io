@@ -1,5 +1,5 @@
 ---
-title: "Androidアプリ開発におけるセマンティック・バージョニング"
+title: "[Android] Androidアプリ開発におけるセマンティック・バージョニング"
 date: 2023-04-22T22:25:47+09:00
 description: "Androidアプリ開発とセマンティック・バージョニング。"
 categories: ["Android"]

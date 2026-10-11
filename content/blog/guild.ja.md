@@ -2,7 +2,7 @@
 title: "Spotifyモデルにおけるギルド"
 date: 2025-10-29T21:48:00+09:00
 description: "Spotifyモデルにおけるギルドについて考えます。"
-categories: ["Organization"]
+categories: ["組織"]
 draft: false
 ---
 

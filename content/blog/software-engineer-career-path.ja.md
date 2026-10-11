@@ -1,8 +1,8 @@
 ---
-title: "ソフトウェアエンジニアのキャリアパス"
+title: "[キャリア] ソフトウェアエンジニアのキャリアパス"
 date: 2023-03-11T22:18:32+09:00
 description: "ソフトウェアエンジニアのキャリアパスについての記事です。"
-categories: ["Career"]
+categories: ["キャリア"]
 draft: false
 ---
 
