@@ -14,13 +14,13 @@ copyright = '© 2019 okuzawats'
     weight = 10
     title = "okuzawats blog"
     [languages.en.params]
-      description = "Mobile Application Development Swamp💀"
+      description = "A Swamp of Software Engineering💀"
   [languages.ja]
     languageName = "Japanese"
     weight = 20
     title = "okuzawatsの日記"
     [languages.ja.params]
-      description = "モバイルアプリケーション開発の沼💀"
+      description = "ソフトウェアエンジニアリングの沼💀"
 
 [menu]
   [[menu.main]]
