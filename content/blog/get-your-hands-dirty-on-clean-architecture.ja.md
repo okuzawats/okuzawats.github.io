@@ -2,7 +2,7 @@
 title: "「手を動かしてわかるクリーンアーキテクチャ」を読んだ📚"
 date: 2024-07-29T21:41:00+09:00
 description: "「手を動かしてわかるクリーンアーキテクチャ ヘキサゴナルアーキテクチャによるクリーンなアプリケーション開発」を読んだ感想です。"
-categories: ["Reading", "Design"]
+categories: ["Reading", "設計"]
 draft: false
 ---
 

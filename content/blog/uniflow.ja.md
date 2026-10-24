@@ -2,7 +2,7 @@
 title: "[Android] Uniflowを用いたMVI的なアーキテクチャを試してみる🦄"
 date: 2023-08-05T22:54:20+09:00
 description: "単一方向のデータフローをサポートするライブラリ「Uniflow」を味見してみます。"
-categories: ["Android", "Design"]
+categories: ["Android", "設計"]
 draft: false
 ---
 

@@ -2,7 +2,7 @@
 title: "短絡評価を乱用しないでください🙅‍♂️"
 date: 2023-03-16T22:48:54+09:00
 description: "短絡評価を乱用すると、思いがけない不具合を生みます。"
-categories: ["Design", "プログラミング"]
+categories: ["設計", "プログラミング"]
 draft: false
 ---
 

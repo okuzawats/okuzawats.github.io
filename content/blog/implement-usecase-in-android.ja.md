@@ -2,7 +2,7 @@
 title: "[Android] UseCaseの実装"
 date: 2022-01-05T08:46:49+09:00
 description: "Android Developersのアプリアーキテクチャガイドに示された、AndroidにおけるUseCase層の実装方針についてのメモです。"
-categories: ["Android", "Design"]
+categories: ["Android", "設計"]
 aliases:
     - /posts/implement-usecase-in-android/
 draft: false

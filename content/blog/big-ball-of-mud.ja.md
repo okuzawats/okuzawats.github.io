@@ -2,7 +2,7 @@
 title: "巨大な泥団子"
 description: "巨大な泥団子についてです。"
 date: 2022-04-29T16:29:00+09:00
-categories: ["Design"]
+categories: ["設計"]
 draft: false
 ---
 

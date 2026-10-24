@@ -2,7 +2,7 @@
 title: "「Advanced Android App Architecture」を読んだ📚"
 date: 2022-01-31T22:10:37+09:00
 description: "「Advanced Android App Architecture」を読んだ感想です。"
-categories: ["Android", "Reading", "Design"]
+categories: ["Android", "Reading", "設計"]
 aliases:
     - /blog/advanced-android-app-architecture/
 draft: false

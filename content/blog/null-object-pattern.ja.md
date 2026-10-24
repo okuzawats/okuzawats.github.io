@@ -2,7 +2,7 @@
 title: "[Kotlin] nullオブジェクトパターン"
 date: 2022-02-07T22:48:00+09:00
 description: "Kotlinによるnullオブジェクトパターンのサンプルコードです。"
-categories: ["Kotlin", "Design", "プログラミング"]
+categories: ["Kotlin", "設計", "プログラミング"]
 draft: false
 ---
 
