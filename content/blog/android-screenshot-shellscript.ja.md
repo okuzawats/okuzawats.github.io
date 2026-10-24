@@ -5,6 +5,7 @@ description: "adbを利用してAndroidのスクリーンショットを撮影�
 categories: ["Android"]
 aliases:
     - /posts/shellscript-to-take-a-screenshot-of-android-device/
+    - /blog/shellscript-to-take-a-screenshot-of-android-device/
 draft: false
 ---
 
