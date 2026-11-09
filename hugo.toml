@@ -1,6 +1,5 @@
 baseURL = "https://okuzawats.com/"
 theme = "awesome"
-languageCode = "ja-jp"
 DefaultContentLanguage = "ja"
 copyright = '© 2019 okuzawats'
 
@@ -10,13 +9,15 @@ copyright = '© 2019 okuzawats'
 
 [languages]
   [languages.en]
-    languageName = "English"
+    label = "English"
+    locale = "en"
     weight = 10
     title = "okuzawats blog"
     [languages.en.params]
       description = "A Swamp of Software Engineering💀"
   [languages.ja]
-    languageName = "Japanese"
+    label = "Japanese"
+    locale = "ja"
     weight = 20
     title = "okuzawatsの日記"
     [languages.ja.params]
